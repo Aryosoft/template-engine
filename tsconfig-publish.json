@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+      "target": "es2023",
+      "module": "commonjs",
+      "rootDir": "./src/engine",
+      "outDir": "./build",
+      "esModuleInterop": true,
+      "forceConsistentCasingInFileNames": true,  
+      "strict": true,
+      "skipLibCheck": true,
+      "allowSyntheticDefaultImports": true,
+      "sourceMap": false,
+      "declaration": true,
+      "declarationDir":"./build/declarations"
+    },
+    "exclude": [
+        "./src/*.ts"
+    ]
+  }

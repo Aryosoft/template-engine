@@ -1,0 +1,8 @@
+src/
+node_modules/
+tests/
+dist/
+tsconfig.json
+tsconfig-publish.json
+.gitignore
+.env

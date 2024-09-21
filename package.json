@@ -1,8 +1,17 @@
 {
-  "name": "template-engine",
-  "version": "1.0.0",
-  "main": "app.js",
+  "name": "aryiosoft-template-engine",
+  "displayName": "Aryiosoft Template Engine",
+  "version": "1.0.1",
+  "main": "index.js",
   "license": "MIT",
+  "author": {
+    "name": "Aryiosoft - Pouya Faridi",
+    "email": "pouya.faridi@outlook.com",
+    "url": "https://github.com/Aryosoft/template-engine"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig-publish.json"
+  },
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^22.5.4",

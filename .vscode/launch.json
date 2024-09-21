@@ -29,7 +29,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/src/app.ts",
+            "program": "${workspaceFolder}/src/index.ts",
             "preLaunchTask": "tsc: build - tsconfig.json", // Ensures TypeScript is compiled before debugging
             "outFiles": [
                 "${workspaceFolder}/dist/**/*.js"
