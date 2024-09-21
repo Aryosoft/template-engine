@@ -1,7 +1,7 @@
 src/
 node_modules/
 tests/
-dist/
+build/
 tsconfig.json
 tsconfig-publish.json
 .gitignore

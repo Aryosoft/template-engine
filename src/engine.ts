@@ -1,9 +1,6 @@
-import './extensions';
-import { TypeHelper, MiscHelper } from './helpers';
+import { TypeHelper } from './helpers';
 import { AsyncRenderCache, SyncRenderCache } from './cache';
 import * as types from './types';
-
-
 
 export class Engine implements types.IEngine {
     private readonly _syncRenderCache: SyncRenderCache = new SyncRenderCache();
@@ -53,9 +50,6 @@ export class Engine implements types.IEngine {
                                 resolve(renderFunc);
                             })
                             .catch(reject);
-
-                        // let renderFunc = this.compiler.compileAsync(template, this.getTemplateName(model));
-
                     })
                     .catch(reject);
             }

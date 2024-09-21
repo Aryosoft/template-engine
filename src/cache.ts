@@ -5,10 +5,9 @@ class MemoryCache<T> {
         setInterval(this.clean.bind(this), 10_000);
     }
 
-    // private readonly lifetime: number = 0;
     private items: { [key: string]: { expireTime: number, val: T } } = {};
 
-    put(info: { key: string, duration: number }, value: T) {
+    put(info: { key: string, duration: number }, value: T): void {
         if (String.isEmpty(info?.key)) throw new ArgumentNullError('info.key');
 
         //if lifetime is less than 1, the value alive for always and never expires.

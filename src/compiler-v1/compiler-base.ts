@@ -32,7 +32,7 @@ export abstract class CompilerBase {
     private readonly regex: RegExp = null!;
     //#endregion
     //#region private-methods
-    protected get source() {
+    protected get source(): string {
         return this._source;
     }
 

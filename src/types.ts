@@ -1,7 +1,5 @@
 export type PlainObject = { [key: string]: any }
 
-
-
 export type EngineOptions =
     {
         delimiter?: string,
@@ -9,11 +7,9 @@ export type EngineOptions =
         closeDelimiter?: string,
         removeWhitespaces?: boolean,
         clientMode?: boolean,
-       // renderContext?: any,
         compileDebug?: boolean,
         debug?: boolean,
         useStrict?: boolean,
-        //useWithStatement?: boolean,
     }
 
 export type CompilOptions = {
@@ -22,11 +18,9 @@ export type CompilOptions = {
     closeDelimiter: string,
     removeWhitespaces: boolean,
     clientMode: boolean,
-  //  renderContext: any,
     compileDebug: boolean,
     debug: boolean,
     useStrict: boolean,
-   // useWithStatement: boolean,
     templateFilename: string,
     outputFunctionName?: string,
     localsName: string,
@@ -37,7 +31,6 @@ export type CompilOptions = {
 export type CompileModel = {
     template: { template: string, isFile?: boolean },
     cache?: { key: string, duration: number }
-
 };
 
 export type TViewModel = {
