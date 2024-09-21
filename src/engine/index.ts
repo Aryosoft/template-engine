@@ -46,9 +46,16 @@ export class Engine implements types.IEngine {
 
                 this.getTemplateAsync(model)
                     .then(template => {
-                        let renderFunc = this.compiler.compileAsync(template, this.getTemplateName(model));
-                        this._asyncRenderCache.put({ key: key, duration: model.cache!.duration }, renderFunc);
-                        resolve(renderFunc);
+
+                        this.compiler.compileAsync(template, this.getTemplateName(model))
+                            .then(renderFunc => {
+                                this._asyncRenderCache.put({ key: key, duration: model.cache!.duration }, renderFunc);
+                                resolve(renderFunc);
+                            })
+                            .catch(reject);
+
+                        // let renderFunc = this.compiler.compileAsync(template, this.getTemplateName(model));
+
                     })
                     .catch(reject);
             }

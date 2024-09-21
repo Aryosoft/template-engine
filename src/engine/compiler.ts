@@ -1,5 +1,5 @@
 import * as types from './types';
-import * as v1 from './compiler-v1';
+import * as v1 from './compiler-v1/index';
 import { MiscHelper, TypeHelper } from './helpers';
 
 export class Compiler implements types.ICompiler {
@@ -12,7 +12,7 @@ export class Compiler implements types.ICompiler {
     }
 
     compile = (templte: string, templateFilename?: string): types.SyncRenderDelegate => new v1.SyncCompiler(templte, this.getCompilerOptions(templateFilename), this.loader, this.logger).compile();
-    compileAsync = (templte: string, templateFilename?: string): types.AsyncRenderDelegate => new v1.AsyncCompiler(templte, this.getCompilerOptions(templateFilename), this.loader, this.logger).compile();
+    compileAsync = (templte: string, templateFilename?: string): Promise<types.AsyncRenderDelegate> => new v1.AsyncCompiler(templte, this.getCompilerOptions(templateFilename), this.loader, this.logger).compile();
 
     private readonly options: types.EngineOptions = null!;
 

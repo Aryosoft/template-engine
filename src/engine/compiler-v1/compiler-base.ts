@@ -1,6 +1,6 @@
-import * as types from './types';
-import { MiscHelper } from './helpers';
-import { writeFileSync } from 'fs';
+import { MiscHelper } from '../helpers';
+import { LayoutResolver } from '../layout-resolver';
+import * as types from '../types';
 
 enum Modes {
     EVAL = 'eval',
@@ -10,11 +10,7 @@ enum Modes {
     LITERAL = 'literal'
 }
 
-type RethrowFunc = (err: Error, str: string, flnm: string, lineno: number, esc: (input: string) => string) => void;
-type AsyncRenderDelegate = (data?: types.PlainObject, esacpe?: (input?: string) => string, include?: (name: string, data: types.PlainObject) => Promise<string>, rethrow?: RethrowFunc) => Promise<string>;
-type SyncRenderDelegate = (data?: types.PlainObject, esacpe?: (input?: string) => string, include?: (name: string, data: types.PlainObject) => string, rethrow?: RethrowFunc) => string;
-
-abstract class CompilerBase {
+export abstract class CompilerBase {
     constructor(
         protected template: string,
         protected readonly options: types.CompilOptions,
@@ -22,7 +18,10 @@ abstract class CompilerBase {
         protected readonly logger: types.ILogger
     ) {
         this.regex = this.createRegex();
+        this.layoutResolver = new LayoutResolver(loader);
     }
+
+    protected readonly layoutResolver: LayoutResolver = null!;
 
     //#region Private Fields
     private _source: string = '';
@@ -32,7 +31,6 @@ abstract class CompilerBase {
     private mode: Modes | null = null;
     private readonly regex: RegExp = null!;
     //#endregion
-
     //#region private-methods
     protected get source() {
         return this._source;
@@ -49,11 +47,11 @@ abstract class CompilerBase {
         // if (StringHelper.isEmpty(this.source)) {
         this.generateSource(async);
 
-        prepended += '\ndebugger;  var __output = "";\n  function __append(s) { if (s !== undefined && s !== null) __output += s }\n';
-        if (!String.isEmpty(this.options.outputFunctionName)) {
-            if (!MiscHelper.isJavaScriptIdentifier(this.options.outputFunctionName!)) throw new Error('outputFunctionName is not a valid JS identifier.');
-            prepended += `  var ${this.options.outputFunctionName} = __append;\n`;//'  var ' + this.options.outputFunctionName + ' = __append;' + '\n';
-        }
+        prepended += 'let __output = ""; \n function __append(s) { if (s !== undefined && s !== null) __output += s }\n';
+        /* if (!String.isEmpty(this.options.outputFunctionName)) {
+             if (!MiscHelper.isJavaScriptIdentifier(this.options.outputFunctionName!)) throw new Error('outputFunctionName is not a valid JS identifier.');
+             prepended += `  var ${this.options.outputFunctionName} = __append;\n`;//'  var ' + this.options.outputFunctionName + ' = __append;' + '\n';
+         }*/
         if (!String.isEmpty(this.options.localsName) && !MiscHelper.isJavaScriptIdentifier(this.options.localsName)) throw new Error('localsName is not a valid JS identifier.');
 
         if (this.options.destructuredLocals instanceof Array && this.options.destructuredLocals.length) {
@@ -62,7 +60,7 @@ abstract class CompilerBase {
                 var name = this.options.destructuredLocals[i];
                 if (!MiscHelper.isJavaScriptIdentifier(name)) throw new Error(`destructuredLocals.${name} is not a valid JS identifier.`);
                 if (i > 0) destructuring += ',\n  ';
-                destructuring += `${name} = __locals.${name}`;//name + ' = __locals.' + name;
+                destructuring += `${name} = __locals.${name}`; //name + ' = __locals.' + name;
             }
             prepended += destructuring + ';\n';
         }
@@ -74,7 +72,6 @@ abstract class CompilerBase {
 
         this._source = prepended + this._source + appended;
         //  }
-
         if (this.options.compileDebug) {
             src = `var __line = 1\n`
                 + `  , __lines =  ${JSON.stringify(this.template)} \n`
@@ -99,7 +96,7 @@ abstract class CompilerBase {
         this._source = src;
 
         return this._source;
-    }
+    };
 
     private generateSource = (async: boolean): void => {
         if (this.options.removeWhitespaces) {
@@ -134,12 +131,10 @@ abstract class CompilerBase {
             });
         }
 
-    }
+    };
 
     private parseTemplateText = (template: string): string[] => {
-        let result = this.regex.exec(template)
-            , arr = []
-            , i = 0;
+        let result = this.regex.exec(template), arr = [], i = 0;
 
         while (result) {
             i = result.index;
@@ -157,24 +152,17 @@ abstract class CompilerBase {
         if (!String.isEmpty(template)) arr.push(template);
 
         return arr;
-    }
+    };
 
     private scanLine = (line: string): void => {
-        let od = this.options.openDelimiter + this.options.delimiter
-            , od_ = `${od}_`
-            , od_dash = `${od}-`
-            , od_eq = `${od}=`
-            , od_hash = `${od}#`
-            , odd = this.options.openDelimiter + this.options.delimiter + this.options.delimiter
-            , dc = this.options.delimiter + this.options.closeDelimiter
-            , ddc = this.options.delimiter + this.options.delimiter + this.options.closeDelimiter
-            , dash_dc = `-${dc}`
-            , _dc = `_${dc}`
-            ;
+        let od = this.options.openDelimiter + this.options.delimiter, od_ = `${od}_`, od_dash = `${od}-`, od_eq = `${od}=`, od_hash = `${od}#`, odd = this.options.openDelimiter + this.options.delimiter + this.options.delimiter, dc = this.options.delimiter + this.options.closeDelimiter, ddc = this.options.delimiter + this.options.delimiter + this.options.closeDelimiter, dash_dc = `-${dc}`, _dc = `_${dc}`;
         var newLineCount = 0;
 
         newLineCount = (line.split('\n').length - 1);
 
+        // if(/\bthis\.useLayout\s*\(/.test(line)){
+        //     line = line.replace(/\bthis\.useLayout\s*\(/, '__layout = this.useLayout(')
+        // }
         switch (line) {
             case od:
             case od_:
@@ -237,6 +225,7 @@ abstract class CompilerBase {
                             break;
                     }
                 }
+
                 // In string mode, just add the output
                 else {
                     this._addOutput(line);
@@ -247,7 +236,7 @@ abstract class CompilerBase {
             this.currentLine += newLineCount;
             this._source += `    ; __line = ${this.currentLine}\n`; // this.source += '    ; __line = ' + this.currentLine + '\n';
         }
-    }
+    };
 
     private _addOutput = (line: string): void => {
         if (this.truncate) {
@@ -267,15 +256,12 @@ abstract class CompilerBase {
         // - this will be the delimiter during execution
         line = line.replace(/"/g, '\\"');
         this._source += `    ; __append("${line}")\n`; //this.source += '    ; __append("' + line + '")' + '\n';
-    }
+    };
 
     private stripSemi = (str: string): string => str.replace(/;(\s*$)/, '$1');
 
     protected rethrow = (err: Error, str: string, flnm: string, lineno: number, esc: (input: string) => string): void => {
-        let lines = str.split('\n')
-            , start = Math.max(lineno - 3, 0)
-            , end = Math.min(lines.length, lineno + 3)
-            , filename = esc(flnm);
+        let lines = str.split('\n'), start = Math.max(lineno - 3, 0), end = Math.min(lines.length, lineno + 3), filename = esc(flnm);
 
         // Error context
         let context = lines.slice(start, end).map((line, i) => {
@@ -288,225 +274,15 @@ abstract class CompilerBase {
         err.message = `${(`${filename ?? ''}:`.trimEndX(':'))}${lineno}\n${context}\n\n${err.message}`;
 
         throw err;
-    }
+    };
 
     private createRegex = () => {
-        let delim = MiscHelper.escapeRegExpChars(this.options.delimiter)
-            , open = MiscHelper.escapeRegExpChars(this.options.openDelimiter)
-            , close = MiscHelper.escapeRegExpChars(this.options.closeDelimiter);
+        let delim = MiscHelper.escapeRegExpChars(this.options.delimiter), open = MiscHelper.escapeRegExpChars(this.options.openDelimiter), close = MiscHelper.escapeRegExpChars(this.options.closeDelimiter);
 
         let str = '(<%%|%%>|<%=|<%-|<%_|<%#|<%|%>|-%>|_%>)'
             .replace(/%/g, delim)
             .replace(/</g, open)
             .replace(/>/g, close);
         return new RegExp(str);
-    }
-    //#region 
-}
-
-export class AsyncCompiler extends CompilerBase {
-    constructor(
-        template: string,
-        options: types.CompilOptions,
-        loader: types.ITemplateLoader,
-        logger: types.ILogger
-    ) {
-        super(template, options, loader, logger);
-    }
-
-    public compile(): AsyncRenderDelegate {
-        let fn = this.getDelegate();
-
-        let renderFunc = this.options.clientMode ? fn : (data?: types.PlainObject) => {
-
-            let include = (partialName: string, includeData: types.PlainObject) => {
-
-                return new Promise<string>((resolve, reject) => {
-                    this.asyncInclude(partialName)
-                        .then(compiler => {
-                            compiler.compile()({ ...data, ...includeData })
-                                .then(resolve)
-                                .catch(reject)
-                        })
-                        .catch(reject);
-                });
-            };
-
-            return fn.apply({}, [data || {}, this.options.escape, include, this.rethrow]);
-           // return fn.apply(this.options.renderContext, [data || {}, this.options.escape, include, this.rethrow]);
-        };
-
-        return renderFunc;
-    }
-
-    /*
-    public render(data?: types.PlainObject): Promise<string> {
-        let fn = this.getDelegate();
-
-        let renderFunc = this.options.clientMode ? fn : (data: types.PlainObject) => {
-
-            let include = (partialName: string, includeData: types.PlainObject) => {
-
-                return new Promise<string>((resolve, reject) => {
-                    this.asyncInclude(partialName)
-                        .then(compiler => {
-                            compiler.render({ ...data, ...includeData })
-                                .then(resolve)
-                                .catch(reject)
-                        })
-                        .catch(reject);
-                });
-            };
-
-            return fn.apply(this.options.renderContext, [data || {}, this.options.escape, include, this.rethrow]);
-        };
-
-        return renderFunc(data ?? {});
-    }
-*/
-    private delegate: AsyncRenderDelegate | null = null;
-
-    private getDelegate = (): AsyncRenderDelegate => {
-        if (!(this.delegate instanceof Function)) {
-            let src = this.prepareSource(true);
-            this.delegate = this.generateDelegate(src);
-        }
-
-        return this.delegate!;
-    }
-
-    private generateDelegate = (source: string): AsyncRenderDelegate => {
-        try {
-            let ctor = (new Function('return (async function(){}).constructor;'))();
-            return new ctor(this.options.localsName + ', escapeFn, include, rethrow', source);
-        }
-        catch (e) {
-            if (e instanceof SyntaxError && !String.isEmpty(this.options.templateFilename))
-                e.message += ` in "${this.options.templateFilename}".`;
-            throw e;
-        }
-        /*catch (e) {
-            if (e instanceof SyntaxError)
-                throw new Error('This environment does not support async/await');
-            else
-                throw e;
-        }*/
-    }
-
-    private asyncInclude(partialName: string): Promise<AsyncCompiler> {
-        return new Promise<AsyncCompiler>((resolve, reject) => {
-            this.loader.loadAsync(partialName)
-                .then(template => resolve(this.clone(template)))
-                .catch(reject);
-        });
-    }
-
-    private clone = (template: string): AsyncCompiler => new AsyncCompiler(template, this.options, this.loader, this.logger);
-
-}
-
-export class SyncCompiler extends CompilerBase {
-    constructor(
-        template: string,
-        options: types.CompilOptions,
-        loader: types.ITemplateLoader,
-        logger: types.ILogger
-    ) {
-        super(template, options, loader, logger);
-    }
-
-    public compile(): types.SyncRenderDelegate {
-        /*let fn = this.getDelegate();
-
-         let renderFunc = this.options.clientMode ? fn : (data?: types.PlainObject) => {
- 
-             let include = (partialName: string, includeData: types.PlainObject) => {
-                 let compiler = this.include(partialName);
-                 return compiler.compile().call({...data, ...includeData }, {...data, ...includeData });
-             };
- 
-             return fn.apply(this.options.renderContext, [data || {}, this.options.escape, include, this.rethrow]);
-         };
-         return renderFunc;
-         */
-
-
-
-        return (function (context: SyncCompiler, data?: types.PlainObject): string {
-            let fn = context.getDelegate();
-
-            // let include = (partialName: string, includeData: types.PlainObject) => {
-            //     let compiler = this.include(partialName);
-            //     return compiler.compile().call({ ...data, ...includeData }, { ...data, ...includeData });
-            // };
-
-            return fn.apply({...context}, [{ ...data }, context.options.escape, context.include, context.rethrow]);
-        }).bind(this, this);
-    }
-
-    /*public render(data?: types.PlainObject): string {
-        let fn = this.getDelegate();
-
-        let renderFunc = this.options.clientMode ? fn : (data: types.PlainObject) => {
-
-            let include = (partialName: string, includeData: types.PlainObject) => {
-                let compiler = this.include(partialName);
-                return compiler.render({ ...data, ...includeData });
-            };
-
-            return fn.apply(this.options.renderContext, [data || {}, this.options.escape, include, this.rethrow]);
-        };
-
-        return renderFunc(data ?? {});
-    }*/
-
-    private delegate: SyncRenderDelegate | null = null;
-
-    private getDelegate = (): SyncRenderDelegate => {
-        if (!(this.delegate instanceof Function)) {
-            let src = this.prepareSource(false);
-            this.delegate = this.generateDelegate(src);
-        }
-
-        return this.delegate!;
-    }
-
-    private generateDelegate = (source: string): SyncRenderDelegate => {
-        try {
-            return (new Function('$model', 'escapeFn', 'include', 'rethrow', source).bind(this));// as SyncRenderDelegate;
-
-            //  let fn = new Function(this.options.localsName + ', escapeFn, include, rethrow', source);
-
-            // return new Function(this.options.localsName + ', escapeFn, include, rethrow', source) as SyncRenderDelegate;
-            // let ctor = (new Function('return (function(){}).constructor;'))();
-            //  return new ctor(this.options.localsName + ', escapeFn, include, rethrow', source);
-        }
-        catch (e) {
-            if (e instanceof SyntaxError && !String.isEmpty(this.options.templateFilename))
-                e.message += ` in "${this.options.templateFilename}".`;
-            throw e;
-        }
-        /*try {
-             return new Function(this.options.localsName + ', escapeFn, include, rethrow', source) as SyncRenderDelegate;
-         }
-         catch (e) {
-             if (e instanceof SyntaxError && !String.isEmpty(this.options.templateFilename))
-                 e.message += ` in "${this.options.templateFilename}".`;
-             throw e;
-         }*/
-    }
-
-    private include(partialName: string, includeData?: types.PlainObject): string {
-        let template = this.loader.load(partialName);
-        return this.clone(template)
-            .compile()
-            .call(this, includeData);
-    }
-
-    private useLayout(layoutName: string){
-        return `<p style="color:#00f">Layout = ${layoutName}</p>`
-    }
-
-    private clone = (template: string): SyncCompiler => new SyncCompiler(template, this.options, this.loader, this.logger);
-
+    };
 }

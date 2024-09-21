@@ -9,11 +9,17 @@ const templateRootPath: string = 'D:/Aryosoft/Projects/template-engine/src/templ
 
 const TemplateLoader: types.ITemplateLoader = Object.freeze({
     load: (filename: string): string => {
-        filename = path.resolve(templateRootPath, `${filename}.ejs`);
+        if (String.isEmpty(path.extname(filename)))
+            filename += '.html';
+
+        filename = path.resolve(templateRootPath, `${filename}`);
         return fs.readFileSync(filename, 'utf-8');
     },
     loadAsync: (filename: string): Promise<string> => new Promise<string>((resolve, reject) => {
-        filename = path.resolve(templateRootPath, `${filename}.ejs`);
+        if (String.isEmpty(path.extname(filename)))
+            filename += '.html';
+
+        filename = path.resolve(templateRootPath, `${filename}`);
         fs.readFile(filename, 'utf-8', (err, data) => {
             if (err)
                 reject(err);
@@ -34,14 +40,12 @@ export class TestEngine {
             template: { template: templateName, isFile: true },
             cache: { key: templateName, duration: 10 }
         }, {
-            content: 'index',
-            pageTitle: 'Index Page',
+            //content: 'index',
+            pageTitle: '',
             people: this.getPeople(limit)
-            //items: this.getPeople(limit)
         });
 
         return html;
-        //return '<h3>RENDER</h3>' + (limit > 0 ? `<p>Limit = ${limit}</p>` : '');
     }
 
     public renderAsync(templateName: string, limit: number): Promise<string> {
@@ -49,11 +53,11 @@ export class TestEngine {
             template: { template: templateName, isFile: true },
             cache: { key: templateName, duration: 10 }
         }, {
-            items: this.getPeople(limit)
+            pageTitle: 'ASYNC',
+            people: this.getPeople(limit)
         }).then(html => {
             return html;
         })
-        // return Promise.resolve('<h3>ASYNC RENDER</h3>' + (limit > 0 ? `<p>Limit = ${limit}</p>` : ''));
     }
 
     private getPeople(limit: number): TPeople[] {

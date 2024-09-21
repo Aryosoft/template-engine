@@ -68,7 +68,7 @@ export interface ILogger {
 
 export interface ICompiler {
     compile(templte: string, templateFilename?: string): SyncRenderDelegate;
-    compileAsync(templte: string, templateFilename?: string): AsyncRenderDelegate;
+    compileAsync(templte: string, templateFilename?: string): Promise<AsyncRenderDelegate>;
 }
 
 export class ArgumentNullError extends Error {
