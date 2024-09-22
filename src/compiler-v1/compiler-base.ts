@@ -118,7 +118,10 @@ export abstract class CompilerBase {
             matches.forEach((line, index) => {
                 var closing;
 
-                if (async && /^\s*include\s*\(/.test(line)) {
+                if (/^\s*include\s*\(/.test(line)) //Fixing missing the "this." pointer.
+                    line = ' this.' + line.trim();
+                
+                if (async && /^\s*this\.include\s*\(/.test(line)) {
                     line = ' await ' + line.trim();
                 }
 

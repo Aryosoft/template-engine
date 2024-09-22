@@ -21,7 +21,7 @@ export class AsyncCompiler extends CompilerBase {
 
                     let func = (function (context: AsyncCompiler, data?: types.PlainObject): Promise<string> {
                         let fn = context.getDelegate();
-                        return fn.apply({ ...context }, [{ ...data }, context.options.escape, context.asyncInclude, context.rethrow]);
+                        return fn.apply({ ...context }, [{ ...data }, context.options.escape, context.include, context.rethrow]);
                     }).bind(this, this);
 
                     resolve(func);
@@ -84,7 +84,7 @@ export class AsyncCompiler extends CompilerBase {
         }*/
     }
 
-    private asyncInclude(partialName: string, includeData?: types.PlainObject): Promise<string> {
+    private include(partialName: string, includeData?: types.PlainObject): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             this.loader.loadAsync(partialName)
                 .then(template => {
