@@ -188,6 +188,101 @@ app.listen(port, () => {
   &lt;/fieldset&gt;
 </code>
 <hr/>
+<h4>Layouts and Partials</h4>
+<p>Use <code>&lt;partial layout=&quot;layout-name&quot;&gt;&lt;/partial&gt;</code> in order to create a partial template that uses another template as its layout.</p>
+<p>
+  Inside the layout:</br>
+  <ul>
+    <li><b>&lt;render-body/&gt;</b>&nbsp;&nbsp; In order to specify the place which the body of the partial will appear into. This tag is mandatory and layout templates must have only and only one of this tag.</li>
+    <li><b>&lt;render-section name="section-name"/&gt;</b>&nbsp;&nbsp; In order to define sections. This tag is not mandatory. Layout templates might have several render-section tags.</li>
+  </ul>
+</p>
+<p>Bellow is an example of a layout template:</p>
+<code>
+  &lt;!DOCTYPE html&gt;
+  &lt;html&gt;
+  &lt;head&gt;
+    &lt;meta name=&quot;encoding&quot; content=&quot;utf8&quot; /&gt;
+    &lt;render-section name=&quot;meta-tags&quot; /&gt;
+    &lt;title&gt;&lt;%= $model.pageTitle%&gt;&lt;/title&gt;
+    &lt;link href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css&quot; rel=&quot;stylesheet&quot; /&gt;
+          &lt;style&gt;
+              body&gt;main {
+                  border-radius: 5px;
+                  border: 1px double #000;
+              }
+          &lt;/style&gt;
+          &lt;render-section name=&quot;styles&quot; /&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+      &lt;main&gt; &lt;render-body /&gt;&lt;/main&gt;
+      &lt;render-section name=&quot;scripts&quot; /&gt;
+  &lt;/body&gt;
+  &lt;/html&gt;
+</code>
+<p>Bellow is an example of a partial template:</p>
+<code>
+  &lt;partial layout=&quot;layout.html&quot;&gt;
+    &lt;code&gt;
+      &lt;% 
+         $model.pageTitle += &#39; - Index&#39;;
+      %&gt;
+    &lt;/code&gt;
+    &lt;section name=&quot;styles&quot;&gt;
+        &lt;style&gt;
+            .index-content {
+                padding: 10px;
+                margin: 5px;
+                border: 1px solid #0f0;
+            }
+        &lt;/style&gt;
+    &lt;/section&gt;
+    &lt;section name=&quot;scripts&quot;&gt;
+        &lt;script&gt;
+            console.log(&quot;I&#39;m the index partial page.&quot;);
+        &lt;/script&gt;
+    &lt;/section&gt;
+    &lt;body&gt;
+        &lt;div class=&quot;index-content&quot;&gt;
+            &lt;%- include(&#39;author.html&#39;, $model) %&gt;
+                &lt;table class=&quot;table table-bordered&quot;&gt;
+                    &lt;thead&gt;
+                        &lt;tr&gt;
+                            &lt;th&gt;#&lt;/th&gt;
+                            &lt;th&gt;Id&lt;/th&gt;
+                            &lt;th&gt;Code&lt;/th&gt;
+                            &lt;th&gt;Name&lt;/th&gt;
+                        &lt;/tr&gt;
+                    &lt;/thead&gt;
+                    &lt;tbody&gt;
+                        &lt;% for(let i=0; i &lt; $model.items.length; i++) { %&gt;
+                            &lt;tr&gt;
+                                &lt;th&gt;
+                                    &lt;%= (i+1)%&gt;
+                                &lt;/th&gt;
+                                &lt;td&gt;
+                                    &lt;%= $model.items[i].code %&gt;
+                                &lt;/td&gt;
+                                &lt;td&gt;
+                                    &lt;%= $model.items[i].code %&gt;
+                                &lt;/td&gt;
+                                &lt;td&gt;
+                                    &lt;%= $model.items[i].name %&gt;
+                                &lt;/td&gt;
+                            &lt;/tr&gt;
+                            &lt;%}%&gt;
+                    &lt;/tbody&gt;
+                    &lt;tfoot&gt;
+                        &lt;tr&gt;
+                            &lt;td colspan=&quot;4&quot;&gt;Total items: &lt;%= $model.items.length%&gt;&lt;/td&gt;
+                        &lt;/tr&gt;
+                    &lt;/tfoot&gt;
+                &lt;/table&gt;
+        &lt;/div&gt;
+    &lt;/body&gt;
+&lt;/partial&gt;
+</code>
+<hr/>
 <h4>Tags</h4>
 <table>
   <thead>
