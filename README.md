@@ -1,3 +1,8 @@
+<h4>Get started</h4>
+<p>yarn install aryiosoft-template-engine</p>
+<p>or:</p>
+<p>npm i aryiosoft-template-engine</p>
+
 <table>
   <thead>
     <tr>
