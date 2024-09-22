@@ -15,36 +15,34 @@
   <tbody>
     <tr>
       <th>1</th>
-      <td>
-        <%< /td>
+      <td>&lt;%</td>
       <td>Script tag (for control-flow, no output)</td>
       <td><code><% let name='Pouya Faridi'; %><code></td>
       </tr>
       <tr>
         <th>2</th>
-        <td><%_</td>
+        <td>&lt;%_</td>
         <td>Script tag with whitespace slurping. Removes all whitespace before it.</td>
         <td><code><%_ let name='Pouya Faridi'; %><code></td>
       </tr>
       <tr>
         <th>3</th>
-        <td><%=</td>
+        <td>&lt;%=</td>
         <td>Writes the value into the template as a plain text(i.e. it ignores HTML tags)</td>
         <td>
           <code><% let name = 'Pouya Faridi'; %><%=name%></code>
         Or:</br>
         <code><% let name = '<b style="color:#f00">Pouya Faridi</b>'; %><%=name%></code>
-        Output:</br>
-        <span>Pouya Faridi</span>
+        <p style="margin-top: 7px;">Output:&nbsp;&nbsp;=>&nbsp;&nbsp;Pouya Faridi</p>
       </td>
     </tr>
     <tr>
       <th>4</th>
-      <td><%-< /td>
+      <td>&lt;%-</td>
       <td>Writes the value into the template. HTML tags will be rendered.</td>
       <td>
-        <code><% let name = '<b style="color:#f00">Pouya Faridi</b>'; %><%=name%></code>
-        <p>Output&nbsp;&nbsp;=>&nbsp;&nbsp;<b style="color:#f00">Pouya Faridi</b></p>
+        <code><% let name = '&lt;b style=&quot;color:#f00&quot;&gt;Pouya Faridi&lt;/b&gt;'; %></br><%=name%></code>
+        <p style="margin-top: 7px;">Output&nbsp;&nbsp;=>&nbsp;&nbsp;<b style="color:#f00">Pouya Faridi</b></p>
       </td>
     </tr>
     <tr>
