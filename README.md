@@ -176,10 +176,10 @@ app.listen(port, () => {
     &lt;/table&gt;
     &lt;/body&gt;
   &lt;/html&gt;
-       
   </code>
 </br>
-<p>author.html</p>
+</br>
+<div>author.html</div>
 <code>
   &lt;fieldset&gt;
     &lt;legend&gt;Author&lt;/legend&gt;
