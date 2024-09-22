@@ -97,15 +97,53 @@ app.get('/async', (req: Request, resp: Response) => {
     }
 
 });
-```
 
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+});
+```
+<hr/>
+<h4>Accessing to the data model inside templates</h4>
+```
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= $model.pageTitle%></title>
+</head>
+<body>
+  <fieldset>
+    <legend>Author</legend>
+    <p>Name:<%= $model.author.name%></p>
+    <p>Name:<%= $model.author.surname%></p>
+  </fieldset>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th colspane="3">Countries</th>
+      </tr>
+      <tr>
+        <th>#</th>
+        <th>Code</th>
+        <th>Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for(let i=0; i < $model.items.length; i++) { %>
+        <tr>
+            <th><%= (i+1)%></th>
+            <td><%= $model.items[i].code%></td>
+            <td><%= $model.items[i]name%></td>
+        </tr>
+      <%}%>
+    </tbody>
+  </table>
+</body>
+</html
+```
+<hr/>
+<h4>Tags</h4>
 <table>
   <thead>
-    <tr>
-      <th colspan="4">
-        <h4>Tags</h4>
-      </th>
-    </tr>
     <tr>
       <th>#</th>
       <th>Tag</th>
