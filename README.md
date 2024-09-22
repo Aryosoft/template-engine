@@ -6,7 +6,6 @@
 <h4>Initializing the engine</h4>
 
 ```
-<code>
   import express, { Request, Response } from 'express';
   import { readFile, readFileSync } from 'fs';
   import path from 'path';
@@ -36,7 +35,6 @@ const templateEngine = new aryo.Engine(compiler, templateLoader);
 
 const app = express();
 const port = 3000;
-</code>
 ```
 
 <table>
