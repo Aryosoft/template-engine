@@ -4,7 +4,6 @@
 <p>npm i aryiosoft-template-engine</p>
 <hr/>
 <h4>Initializing the engine</h4>
-
 ```
   import express, { Request, Response } from 'express';
   import { readFile, readFileSync } from 'fs';
@@ -104,7 +103,7 @@ app.listen(port, () => {
 ```
 <hr/>
 <h4>Accessing to the data model inside templates</h4>
-
+<p>Use $model in order to access the passed data into the template.<p/>
 <code>
 &lt;!DOCTYPE html&gt;
 &lt;html&gt;
