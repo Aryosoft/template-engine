@@ -11,8 +11,7 @@
     "url": "https://github.com/Aryosoft/template-engine"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "build2": "tsc -p tsconfig-publish.json"
+    "build": "tsc -p tsconfig.json"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
