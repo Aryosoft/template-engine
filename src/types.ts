@@ -55,7 +55,7 @@ export interface IEngine {
     renderAsync(model: CompileModel, $model?: PlainObject): Promise<string>;
 
     cache: { purgeItem: (key: string) => void, purgeEveryThings: () => void };
-   
+
 }
 
 export interface ITemplateLoader {
@@ -74,20 +74,37 @@ export interface ICompiler {
     compileAsync(templte: string, templateFilename?: string): Promise<AsyncRenderDelegate>;
 }
 
-export class ArgumentNullError extends Error {
+//#region ----- Errors ----------------------
+export enum ErrorCauses {
+    MissingRequiredFiled = 'MISSING_REQUIRED_FIELD',
+    TemplateNotFound = 'TEMPLATE_NOTFOUND',
+    TypeError = 'TYPE_ERROR',
+}
+
+export class ArgumentNullException extends Error {
     constructor(argName: string, message?: string) {
         super(`The argument ${argName} cannot be null. ${message ?? ''}`.trim());
         this.name = this.constructor.name;
-        this.cause = 'MISSING_REQUIRED_FIELD';
+        this.cause = ErrorCauses.MissingRequiredFiled;
         Error.captureStackTrace(this, this.constructor);
     }
 }
 
-export class TypeError extends Error {
+export class TypeMismatchException extends Error {
     constructor(refName: string, correctTypeName: string, message?: string) {
         super(`Invalid value of the "${refName}", it must be a/an "${correctTypeName}". ${message ?? ''}`.trim());
         this.name = this.constructor.name;
-        this.cause = 'TYPE_ERROR';
+        this.cause = ErrorCauses.TypeError;
         Error.captureStackTrace(this, this.constructor);
     }
 }
+
+export class TemplateNotFoundException extends Error {
+    constructor(templateName: string, message?: string) {
+        super(`The template "${templateName}" is not found.${message ?? ''}`.trim());
+        this.name = this.constructor.name;
+        this.cause = ErrorCauses.TemplateNotFound;
+        Error.captureStackTrace(this, this.constructor);
+    }
+}
+//#endregion

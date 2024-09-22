@@ -92,23 +92,23 @@ export class Engine implements types.IEngine {
     private validate(model: types.CompileModel, reject?: (err: any) => void) {
         try {
             if (model === undefined || model == null)
-                throw new types.ArgumentNullError('model');
+                throw new types.ArgumentNullException('model');
 
             if (!TypeHelper.isPlainObject(model))
-                throw new types.TypeError('model', 'Plain Object');
+                throw new types.TypeMismatchException('model', 'Plain Object');
 
             if (model.template === undefined || model.template == null)
-                throw new types.ArgumentNullError('model.template');
+                throw new types.ArgumentNullException('model.template');
 
             if (!TypeHelper.isPlainObject(model))
-                throw new types.TypeError('model.template', 'Plain Object');
+                throw new types.TypeMismatchException('model.template', 'Plain Object');
 
             if (String.isEmpty(model.template.template))
-                throw new types.ArgumentNullError('model.template.template', 'Template content or template filename is required.');
+                throw new types.ArgumentNullException('model.template.template', 'Template content or template filename is required.');
 
             if (TypeHelper.isPlainObject(model.cache)) {
                 if (String.isEmpty(model.cache!.key))
-                    throw new types.ArgumentNullError('model.cache.key', 'The cache.key is required.');
+                    throw new types.ArgumentNullException('model.cache.key', 'The cache.key is required.');
             }
             else
                 delete model.cache;
@@ -121,7 +121,7 @@ export class Engine implements types.IEngine {
         }
     }
     private getCacheKey = (model: types.CompileModel): string => {
-        if (String.isEmpty(model.cache!.key)) throw new types.ArgumentNullError('cache.key');
+        if (String.isEmpty(model.cache!.key)) throw new types.ArgumentNullException('cache.key');
         return model.cache!.key;
         // model.template.isFile ? model.template.template.trim().toLowerCase() : model.cache!.key
     }

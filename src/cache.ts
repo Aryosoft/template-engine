@@ -1,4 +1,4 @@
-import { ArgumentNullError, SyncRenderDelegate, AsyncRenderDelegate } from './types';
+import { ArgumentNullException, SyncRenderDelegate, AsyncRenderDelegate } from './types';
 
 class MemoryCache<T> {
     constructor() {
@@ -8,7 +8,7 @@ class MemoryCache<T> {
     private items: { [key: string]: { expireTime: number, val: T } } = {};
 
     put(info: { key: string, duration: number }, value: T): void {
-        if (String.isEmpty(info?.key)) throw new ArgumentNullError('info.key');
+        if (String.isEmpty(info?.key)) throw new ArgumentNullException('info.key');
 
         //if lifetime is less than 1, the value alive for always and never expires.
         delete this.items[info.key];
