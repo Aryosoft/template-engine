@@ -9,6 +9,33 @@
   import { readFile, readFileSync } from 'fs';
   import path from 'path';
   import * as aryo from 'aryiosoft-template-engine';
+
+  const templatePath: string = './src/templates';
+
+  const templateLoader: aryo.types.ITemplateLoader = Object.freeze({
+    load: (filename: string): string => {
+        filename = path.resolve(templatePath, filename);
+        return readFileSync(filename, 'utf-8');
+    },
+    loadAsync: (filename: string): Promise<string> => {
+        return new Promise<string>((resolve, reject) => {
+            filename = path.resolve(templatePath, filename);
+            readFile(filename, 'utf-8', (err, content) => {
+                if (err)
+                    reject(err);
+                else
+                    resolve(content);
+            });
+        });
+    }
+});
+
+const compiler: aryo.types.ICompiler = new aryo.Compiler(templateLoader, aryo.ConsoleLogger);
+const templateEngine = new aryo.Engine(compiler, templateLoader);
+
+const app = express();
+const port = 3000;
+
 </code>
 <table>
   <thead>
