@@ -12,6 +12,7 @@
   import * as aryo from 'aryiosoft-template-engine';
 
   const templatePath: string = './src/templates';
+
   const templateLoader: aryo.types.ITemplateLoader = Object.freeze({
     load: (filename: string): string => {
         filename = path.resolve(templatePath, filename);
@@ -35,6 +36,67 @@ const templateEngine = new aryo.Engine(compiler, templateLoader);
 
 const app = express();
 const port = 3000;
+
+const countries: = [
+    { id: 100, code:'us', name: 'United State' },
+    { id: 101, code:'de' name: 'Germany' },
+    { id: 102, code:'UK', name: 'United Kingdom' },
+    { id: 103, code:'FR' name: 'France' },
+    { id: 104, code:'IT' name: 'Italy' },
+];
+
+app.get('/', (req: Request, resp: Response) => {
+    try {
+        let html = templateEngine.render({
+            template: { template: 'index.html', isFile: true },
+            cache: { key: 'c378b36b-ee9d-478d-bada-7ca70849b4c2', duration: 30/*30 Seconds*/ }
+        }, {
+            pageTitle: 'SYNC Rendring',
+            author: {name:'Pouya', surname:'Faridi'},
+            items: countries
+        });
+
+        resp.status(200)
+            .contentType('text/html')
+            .send(html);
+    }
+    catch (err: any) {
+        resp.status(500)
+            .contentType('text/plain')
+            .send(err.message);
+    }
+
+});
+
+app.get('/async', (req: Request, resp: Response) => {
+    try {
+        templateEngine.renderAsync({
+            template: { template: 'index.html', isFile: true },
+            cache: { key: 'c378b36b-ee9d-478d-bada-7ca70849b4c2', duration: 30 /*30 Seconds*/ }
+        }, {
+            pageTitle: 'ASYNC Rendring',
+            author: {name:'Pouya', surname:'Faridi'},
+            items: countries
+        }).then(html => {
+            resp.status(200)
+                .contentType('text/html')
+                .send(html);
+        })
+            .catch(err => {
+                resp.status(500)
+                    .contentType('text/plain')
+                    .send(err.message);
+            });
+
+
+    }
+    catch (err: any) {
+        resp.status(500)
+            .contentType('text/plain')
+            .send(err.message);
+    }
+
+});
 ```
 
 <table>
