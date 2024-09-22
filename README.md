@@ -143,6 +143,51 @@ app.listen(port, () => {
      
 </code>
 <hr/>
+<h4>Include</h4>
+<p>Use <code>include('template-name', [data])</code> in order to embed an external partial template.</p>
+<code>
+  &lt;!DOCTYPE html&gt;
+  &lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;&lt;%= $model.pageTitle%&gt;&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;%- include('author.html', $model.author) %&gt;
+    &lt;table class=&quot;table table-bordered&quot;&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;
+          &lt;th colspane=&quot;3&quot;&gt;Countries&lt;/th&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;th&gt;#&lt;/th&gt;
+          &lt;th&gt;Code&lt;/th&gt;
+          &lt;th&gt;Name&lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;% for(let i=0; i &lt; $model.items.length; i++) { %&gt;
+          &lt;tr&gt;
+              &lt;th&gt;&lt;%= (i+1)%&gt;&lt;/th&gt;
+              &lt;td&gt;&lt;%= $model.items[i].code%&gt;&lt;/td&gt;
+              &lt;td&gt;&lt;%= $model.items[i]name%&gt;&lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;%}%&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+    &lt;/body&gt;
+  &lt;/html&gt;
+       
+  </code>
+</br>
+<p>author.html</p>
+<code>
+  &lt;fieldset&gt;
+    &lt;legend&gt;Author&lt;/legend&gt;
+    &lt;p&gt;Name:&lt;%= $model.name%&gt;&lt;/p&gt;
+    &lt;p&gt;Name:&lt;%= $model.surname%&gt;&lt;/p&gt;
+  &lt;/fieldset&gt;
+</code>
+<hr/>
 <h4>Tags</h4>
 <table>
   <thead>
