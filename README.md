@@ -104,43 +104,43 @@ app.listen(port, () => {
 ```
 <hr/>
 <h4>Accessing to the data model inside templates</h4>
-<code>
+
 ```
-<!DOCTYPE html>
-<html>
-<head>
-  <title><%= $model.pageTitle%></title>
-</head>
-<body>
-  <fieldset>
-    <legend>Author</legend>
-    <p>Name:<%= $model.author.name%></p>
-    <p>Name:<%= $model.author.surname%></p>
-  </fieldset>
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th colspane="3">Countries</th>
-      </tr>
-      <tr>
-        <th>#</th>
-        <th>Code</th>
-        <th>Name</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% for(let i=0; i < $model.items.length; i++) { %>
-        <tr>
-            <th><%= (i+1)%></th>
-            <td><%= $model.items[i].code%></td>
-            <td><%= $model.items[i]name%></td>
-        </tr>
-      <%}%>
-    </tbody>
-  </table>
-</body>
-      </html>
-        </code>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;&lt;%= $model.pageTitle%&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;fieldset&gt;
+    &lt;legend&gt;Author&lt;/legend&gt;
+    &lt;p&gt;Name:&lt;%= $model.author.name%&gt;&lt;/p&gt;
+    &lt;p&gt;Name:&lt;%= $model.author.surname%&gt;&lt;/p&gt;
+  &lt;/fieldset&gt;
+  &lt;table class=&quot;table table-bordered&quot;&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;
+        &lt;th colspane=&quot;3&quot;&gt;Countries&lt;/th&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;th&gt;#&lt;/th&gt;
+        &lt;th&gt;Code&lt;/th&gt;
+        &lt;th&gt;Name&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;% for(let i=0; i &lt; $model.items.length; i++) { %&gt;
+        &lt;tr&gt;
+            &lt;th&gt;&lt;%= (i+1)%&gt;&lt;/th&gt;
+            &lt;td&gt;&lt;%= $model.items[i].code%&gt;&lt;/td&gt;
+            &lt;td&gt;&lt;%= $model.items[i]name%&gt;&lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;%}%&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+     
 ```
 <hr/>
 <h4>Tags</h4>
