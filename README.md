@@ -104,7 +104,7 @@ app.listen(port, () => {
 ```
 <hr/>
 <h4>Accessing to the data model inside templates</h4>
-<p>Use $model in order to access the passed data into the template.<p/>
+<p>Use <code>$model</code> in order to access the passed data into the template.<p/>
 <code>
 &lt;!DOCTYPE html&gt;
 &lt;html&gt;
