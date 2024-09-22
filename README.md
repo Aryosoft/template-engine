@@ -4,6 +4,8 @@
 <p>npm i aryiosoft-template-engine</p>
 <hr/>
 <h4>Initializing the engine</h4>
+
+```
 <code>
   import express, { Request, Response } from 'express';
   import { readFile, readFileSync } from 'fs';
@@ -11,7 +13,6 @@
   import * as aryo from 'aryiosoft-template-engine';
 
   const templatePath: string = './src/templates';
-
   const templateLoader: aryo.types.ITemplateLoader = Object.freeze({
     load: (filename: string): string => {
         filename = path.resolve(templatePath, filename);
@@ -35,8 +36,9 @@ const templateEngine = new aryo.Engine(compiler, templateLoader);
 
 const app = express();
 const port = 3000;
-
 </code>
+```
+
 <table>
   <thead>
     <tr>
