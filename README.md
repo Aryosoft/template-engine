@@ -31,8 +31,9 @@
         <td>Writes the value into the template as a plain text(i.e. it ignores HTML tags)</td>
         <td>
           <code><% let name = 'Pouya Faridi'; %><%=name%></code>
+        </br>
         Or:</br>
-        <code><% let name = '<b style="color:#f00">Pouya Faridi</b>'; %><%=name%></code>
+        <code><% let name = '&lt;b style=&quot;color:#f00&quot;&gt;Pouya Faridi&lt;/b&gt;' %><%=name%></code>
         <p style="margin-top: 7px;">Output:&nbsp;&nbsp;=>&nbsp;&nbsp;Pouya Faridi</p>
       </td>
     </tr>
