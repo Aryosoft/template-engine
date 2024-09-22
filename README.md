@@ -104,6 +104,7 @@ app.listen(port, () => {
 ```
 <hr/>
 <h4>Accessing to the data model inside templates</h4>
+<code>
 ```
 <!DOCTYPE html>
 <html>
@@ -138,7 +139,8 @@ app.listen(port, () => {
     </tbody>
   </table>
 </body>
-</html
+      </html>
+        </code>
 ```
 <hr/>
 <h4>Tags</h4>
