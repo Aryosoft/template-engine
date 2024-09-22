@@ -41,7 +41,8 @@
       <td>&lt;%-</td>
       <td>Writes the value into the template. HTML tags will be rendered.</td>
       <td>
-        <code><% let name = '&lt;b style=&quot;color:#f00&quot;&gt;Pouya Faridi&lt;/b&gt;'; %></br><%=name%></code>
+        <code><% let name = '&lt;b style=&quot;color:#f00&quot;&gt;Pouya Faridi&lt;/b&gt;' %><%=name%></code></br>
+        <code><%=name%></code>
         <p style="margin-top: 7px;">Output&nbsp;&nbsp;=>&nbsp;&nbsp;<b style="color:#f00">Pouya Faridi</b></p>
       </td>
     </tr>
