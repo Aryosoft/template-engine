@@ -30,7 +30,14 @@ export type CompilOptions = {
 
 export type CompileModel = {
     template: { template: string, isFile?: boolean },
-    cache?: { key: string, duration: number }
+    cache?: {
+        /**A mandatory unique string key. It is better to leave a Guid as key.*/
+        key: string,
+        /** A number in seconds that indicates how long to cache the compiled template.
+         * For lifetime caching leave this value zero.
+        */
+        duration: number
+    }
 };
 
 export type TViewModel = {
@@ -46,6 +53,9 @@ export interface IEngine {
 
     render(model: CompileModel, $model?: PlainObject): string;
     renderAsync(model: CompileModel, $model?: PlainObject): Promise<string>;
+
+    cache: { purgeItem: (key: string) => void, purgeEveryThings: () => void };
+   
 }
 
 export interface ITemplateLoader {

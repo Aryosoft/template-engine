@@ -2,7 +2,7 @@ import { ArgumentNullError, SyncRenderDelegate, AsyncRenderDelegate } from './ty
 
 class MemoryCache<T> {
     constructor() {
-        setInterval(this.clean.bind(this), 10_000);
+        setInterval(this.flush.bind(this), 20_000);
     }
 
     private items: { [key: string]: { expireTime: number, val: T } } = {};
@@ -27,7 +27,18 @@ class MemoryCache<T> {
         return item?.val;
     }
 
-    clean(): void {
+    purge(key: string): void {
+        if (String.isEmpty(key)) return;
+        delete this.items[key];
+    }
+
+    purgeAll(): void {
+        Object.keys(this.items)
+            .forEach(key => delete this.items[key]);
+    }
+
+    /**Removes all expired items from the cache. */
+    flush(): void {
         let now = Date.now();
 
         Object.keys(this.items)

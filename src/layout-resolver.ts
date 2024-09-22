@@ -2,7 +2,7 @@ import * as types from './types';
 import * as htmlParser from 'node-html-parser';
 
 type TPageInfo = {
-    useLayout: boolean,
+    isPartialPage: boolean,
     layoutName: string,
     body: string,
     sections: { [key: string]: string },
@@ -14,33 +14,63 @@ type TLayoutInfo = {
     sections: { [key: string]: htmlParser.HTMLElement },
     parent?: TLayoutInfo
 }
+
+const Tags = Object.freeze({
+    /** <partial></partial> */
+    partialTagName: 'partial',
+
+    /** <partial layout="layout_name"></partial> */
+    partialTagLayoutAttr: 'layout',
+
+    /** <partial layout="layout_name"><body></body></partial> */
+    partialBodyQuery: 'partial > body',
+
+    /** <partial layout="layout_name"><code></code></partial> */
+    partialCodeQuery: 'partial > code',
+
+    /** <partial layout="layout_name"><section name="section_name"></section></partial> */
+    partialSectionQuery: 'partial > section',
+    partialSectionTagNameAttr: 'name',
+
+    /**<render-body/>*/
+    layoutRenderBodyTagName: 'render-body',
+
+    /**<render-section name="section_name"/>*/
+    layoutRenderSectionTagName: 'render-section',
+    layoutRenderSectionNameAttr: 'name',
+});
+
+const Messages = Object.freeze({
+    circularLayout: 'Circular layout reference. A partial page cannot use itself as its layout.',
+    missingPartialLayoutAttr: `Missing the required attribute "${Tags.partialTagLayoutAttr}" on the ${Tags.partialTagName} tag.`,
+    missingRenderBodyTag: `Missing required tag => <${Tags.layoutRenderBodyTagName}/>`,
+});
+
 export class LayoutResolver {
-
-    constructor(private readonly loader: types.ITemplateLoader) {
-
-    }
+    constructor(private readonly loader: types.ITemplateLoader) { }
 
     private getPageInfo(template: string): TPageInfo {
-        let info: TPageInfo = { useLayout: false, layoutName: '', body: '', codes: {}, sections: {} };
         let dom = htmlParser.parse(template);
-        let layout = dom.querySelector('layout');
-        info.useLayout = Boolean(layout);
-        if (!info.useLayout) return info;
-        info.layoutName = layout!.getAttribute('name') ?? '';
-        if (String.isEmpty(info.layoutName)) throw new Error('Layout name is not specified. The layout tag an attribute named "name". ');
+        let partial = dom.querySelector(Tags.partialTagName);
+        let info: TPageInfo = { isPartialPage: Boolean(partial), layoutName: '', body: '', codes: {}, sections: {} };
+        if (!info.isPartialPage) return info;
+        info.layoutName = partial!.getAttribute(Tags.partialTagLayoutAttr) ?? '';
+        if (String.isEmpty(info.layoutName)) throw new Error(Messages.missingPartialLayoutAttr);
         /*------------------------------------------------*/
-        info.body = dom.querySelector('layout > body')?.innerHTML ?? '';
+        info.body = dom.querySelector(Tags.partialBodyQuery)?.innerHTML ?? '';
 
-        dom.querySelectorAll('layout > code').forEach((el, i) => {
-            let key = i.toString().padStart(6, '0');
-            info.codes[key] = el.innerHTML.trim();
-        });
+        dom.querySelectorAll(Tags.partialCodeQuery)
+            .forEach((el, i) => {
+                let key = i.toString().padStart(6, '0');
+                info.codes[key] = el.innerHTML.trim();
+            });
 
-        dom.querySelectorAll('layout > section').forEach((el, i) => {
-            let name = el.getAttribute('name');
-            if (!String.isEmpty(name))
-                info.sections[name!] = el.innerHTML.trim();
-        });
+        dom.querySelectorAll(Tags.partialSectionQuery)
+            .forEach(el => {
+                let name = el.getAttribute(Tags.partialSectionTagNameAttr);
+                if (!String.isEmpty(name))
+                    info.sections[name!] = el.innerHTML.trim();
+            });
 
         return info;
     }
@@ -49,21 +79,20 @@ export class LayoutResolver {
         let template = this.loader.load(layoutName);
         let info: TLayoutInfo = { documnt: htmlParser.parse(template), body: null, sections: {} };
 
-        info.body = info.documnt.querySelector('render-body');
-        if (!info.body) throw new Error('Missing required tag => <render-body/>');
+        info.body = info.documnt.querySelector(Tags.layoutRenderBodyTagName);
+        if (!info.body) throw new Error(Messages.missingRenderBodyTag);
 
-        info.documnt.querySelectorAll('render-section')
+        info.documnt.querySelectorAll(Tags.layoutRenderSectionTagName)
             .forEach(el => {
-                let name = el.getAttribute('name');
+                let name = el.getAttribute(Tags.layoutRenderSectionNameAttr);
                 if (!String.isEmpty(name))
                     info.sections[name!] = el;
             });
 
         let page = this.getPageInfo(template);
-        if (page.useLayout) {
+        if (page.isPartialPage) {
             if (page.layoutName.trim().toLowerCase() == layoutName.trim().toLowerCase())
-                throw new Error('Circular layout reference. A layout cannot use itself as its layout.');
-
+                throw new Error(Messages.circularLayout);
             info.parent = this.getLayoutInfo(page.layoutName);
         }
         return info;
@@ -75,20 +104,20 @@ export class LayoutResolver {
                 .then(template => {
                     let info: TLayoutInfo = { documnt: htmlParser.parse(template), body: null, sections: {} };
 
-                    info.body = info.documnt.querySelector('render-body');
-                    if (!info.body) return reject(new Error('Missing required tag => <render-body/>'));
+                    info.body = info.documnt.querySelector(Tags.layoutRenderBodyTagName);
+                    if (!info.body) return reject(new Error(Messages.missingRenderBodyTag));
 
-                    info.documnt.querySelectorAll('render-section')
+                    info.documnt.querySelectorAll(Tags.layoutRenderSectionTagName)
                         .forEach(el => {
-                            let name = el.getAttribute('name');
+                            let name = el.getAttribute(Tags.layoutRenderSectionNameAttr);
                             if (!String.isEmpty(name))
                                 info.sections[name!] = el;
                         });
 
                     let page = this.getPageInfo(template);
-                    if (page.useLayout) {
+                    if (page.isPartialPage) {
                         if (page.layoutName.trim().toLowerCase() == layoutName.trim().toLowerCase())
-                            reject(new Error('Circular layout reference. A layout cannot use itself as its layout.'));
+                            reject(new Error(Messages.circularLayout));
                         else
                             this.getLayoutInfoAsync(page.layoutName)
                                 .then(parent => {
@@ -131,14 +160,14 @@ export class LayoutResolver {
 
     public resolve(template: string): string {
         let page = this.getPageInfo(template);
-        return page.useLayout
+        return page.isPartialPage
             ? this.merge(page, this.getLayoutInfo(page.layoutName))
             : template;
     }
 
     public resolveAsync(template: string): Promise<string> {
         let page = this.getPageInfo(template);
-        return page.useLayout
+        return page.isPartialPage
             ? this.getLayoutInfoAsync(page.layoutName).then(layout => this.merge(page, layout))
             : Promise.resolve(template);
     }

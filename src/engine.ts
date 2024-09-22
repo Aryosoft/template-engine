@@ -3,8 +3,7 @@ import { AsyncRenderCache, SyncRenderCache } from './cache';
 import * as types from './types';
 
 export class Engine implements types.IEngine {
-    private readonly _syncRenderCache: SyncRenderCache = new SyncRenderCache();
-    private readonly _asyncRenderCache: AsyncRenderCache = new AsyncRenderCache();
+
 
     constructor(
         private readonly compiler: types.ICompiler,
@@ -76,6 +75,20 @@ export class Engine implements types.IEngine {
         });
     }
 
+    cache: { purgeItem: (key: string) => void, purgeEveryThings: () => void } = Object.freeze({
+        purgeItem: (key: string) => {
+            this._asyncRenderCache.purge(key!);
+            this._syncRenderCache.purge(key!);
+        },
+        purgeEveryThings: () => {
+            this._asyncRenderCache.purgeAll();
+            this._syncRenderCache.purgeAll();
+        }
+    });
+
+    private readonly _asyncRenderCache: AsyncRenderCache = new AsyncRenderCache();
+    private readonly _syncRenderCache: SyncRenderCache = new SyncRenderCache();
+
     private validate(model: types.CompileModel, reject?: (err: any) => void) {
         try {
             if (model === undefined || model == null)
@@ -107,7 +120,11 @@ export class Engine implements types.IEngine {
                 throw err;
         }
     }
-    private getCacheKey = (model: types.CompileModel): string => model.template.isFile ? model.template.template.trim().toLowerCase() : model.cache!.key;
+    private getCacheKey = (model: types.CompileModel): string => {
+        if (String.isEmpty(model.cache!.key)) throw new types.ArgumentNullError('cache.key');
+        return model.cache!.key;
+        // model.template.isFile ? model.template.template.trim().toLowerCase() : model.cache!.key
+    }
     private getTemplateName = (model: types.CompileModel): string => model.template.isFile ? model.template.template : '';
     private getTemplate = (model: types.CompileModel): string => model.template.isFile ? this.templateLoader.load(model.template.template) : model.template.template;
     private getTemplateAsync = (model: types.CompileModel): Promise<string> => model.template.isFile ? this.templateLoader.loadAsync(model.template.template) : Promise.resolve(model.template.template);
