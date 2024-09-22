@@ -2,7 +2,14 @@
 <p>yarn install aryiosoft-template-engine</p>
 <p>or:</p>
 <p>npm i aryiosoft-template-engine</p>
-
+<hr/>
+<h4>Initializing the engine</h4>
+<code>
+  import express, { Request, Response } from 'express';
+  import { readFile, readFileSync } from 'fs';
+  import path from 'path';
+  import * as aryo from 'aryiosoft-template-engine';
+</code>
 <table>
   <thead>
     <tr>
