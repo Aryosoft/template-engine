@@ -1,12 +1,39 @@
-<h4>Tags</h4>
-<ul>
-  <li><span style="color:#00f"><%</span>&nbsp;<span>'Scriptlet' tag, for control-flow, no output</span></li>
-  <li><span style="color:#00f"><%_</span>&nbsp;&nbsp;<span>‘Whitespace Slurping’ Scriptlet tag, strips all whitespace before it</span></li>
-  <li><span style="color:#00f"><%=</span>&nbsp;&nbsp;<span>Outputs the value into the template (HTML escaped)</span></li>
-  <li><span style="color:#00f"><%-</span>&nbsp;&nbsp;<span>Outputs the unescaped value into the template</span></li>
-  <li><span style="color:#00f"><%#</span>&nbsp;&nbsp;<span>Comment tag</span></li>
-  <li><span style="color:#00f"><%%</span>&nbsp;&nbsp;<span>Outputs a literal '<%'</span></li>
-  <li><span style="color:#00f">%></span>&nbsp;&nbsp;<span>Plain ending tag</span></li>
-  <li><span style="color:#00f">-%></span>&nbsp;&nbsp;<span>Trim-mode ('newline slurp') tag, trims following newline</span></li>
-  <li><span style="color:#00f">_%></span>&nbsp;&nbsp;<span>‘Whitespace Slurping’ ending tag, removes all whitespace after it</span></li>
-  </ul>
+<table>
+  <thead>
+      <tr>
+        <th><h4>Tags</h4></th>
+      </tr>
+      <tr>
+        <th>#</th>
+        <th>Tag</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <th>1</th>
+        <td><%</td>
+        <td>Script tag (for control-flow, no output)</td>
+        <td><code><% let name='Pouya Faridi'; %><code></td>
+      </tr>
+      <tr>
+        <th>2</th>
+        <td><%_</td>
+        <td>Script tag with whitespace slurping. Removes all whitespace before it.</td>
+        <td><code><%_ let name='Pouya Faridi'; %><code></td>
+      </tr>
+      <tr>
+        <th>3</th>
+        <td><%=</td>
+        <td>Writes the value into the template as a plain text(i.e. it ignores HTML tags)</td>
+        <td><code><% let name = 'Pouya Faridi'; %><%=name%></code></td>
+      </tr>
+      <tr>
+        <th></th>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+  </tbody>
+</table>
