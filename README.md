@@ -1,6 +1,6 @@
 <p>A simple and fast template engine for NodeJS.</p>
 <h4>Get started</h4>
-<p>yarn install aryiosoft-template-engine</p>
+<p>yarn add aryiosoft-template-engine</p>
 <p>or:</p>
 <p>npm i aryiosoft-template-engine</p>
 <hr/>
