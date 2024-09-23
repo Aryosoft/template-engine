@@ -1,5 +1,6 @@
 import * as types from './types';
 import * as htmlParser from 'node-html-parser';
+import { MiscHelper } from './helpers';
 
 type TPageInfo = {
     isPartialPage: boolean,
@@ -55,7 +56,7 @@ export class LayoutResolver {
         let info: TPageInfo = { isPartialPage: Boolean(partial), layoutName: '', body: '', codes: {}, sections: {} };
         if (!info.isPartialPage) return info;
         info.layoutName = partial!.getAttribute(Tags.partialTagLayoutAttr) ?? '';
-        if (String.isEmpty(info.layoutName)) throw new Error(Messages.missingPartialLayoutAttr);
+        if (MiscHelper.isEmptyString(info.layoutName)) throw new Error(Messages.missingPartialLayoutAttr);
         /*------------------------------------------------*/
         info.body = dom.querySelector(Tags.partialBodyQuery)?.innerHTML ?? '';
 
@@ -68,7 +69,7 @@ export class LayoutResolver {
         dom.querySelectorAll(Tags.partialSectionQuery)
             .forEach(el => {
                 let name = el.getAttribute(Tags.partialSectionTagNameAttr);
-                if (!String.isEmpty(name))
+                if (!MiscHelper.isEmptyString(name))
                     info.sections[name!] = el.innerHTML.trim();
             });
 
@@ -85,7 +86,7 @@ export class LayoutResolver {
         info.documnt.querySelectorAll(Tags.layoutRenderSectionTagName)
             .forEach(el => {
                 let name = el.getAttribute(Tags.layoutRenderSectionNameAttr);
-                if (!String.isEmpty(name))
+                if (!MiscHelper.isEmptyString(name))
                     info.sections[name!] = el;
             });
 
@@ -110,7 +111,7 @@ export class LayoutResolver {
                     info.documnt.querySelectorAll(Tags.layoutRenderSectionTagName)
                         .forEach(el => {
                             let name = el.getAttribute(Tags.layoutRenderSectionNameAttr);
-                            if (!String.isEmpty(name))
+                            if (!MiscHelper.isEmptyString(name))
                                 info.sections[name!] = el;
                         });
 
@@ -135,13 +136,13 @@ export class LayoutResolver {
 
     private merge2(page: TPageInfo, layout: TLayoutInfo, codes: string[]): string {
         let code = Object.keys(page.codes).map(key => page.codes[key]).join('\r\n').trim();
-        if (!String.isEmpty(code)) codes.push(code);
+        if (!MiscHelper.isEmptyString(code)) codes.push(code);
 
         layout.body!.replaceWith(page.body);
 
         Object.keys(layout.sections)
             .forEach(name => {
-                if (String.isEmpty(page.sections[name]))
+                if (MiscHelper.isEmptyString(page.sections[name]))
                     layout.sections[name].remove();
                 else
                     layout.sections[name].replaceWith(page.sections[name]);

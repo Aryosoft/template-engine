@@ -38,9 +38,9 @@ export abstract class CompilerBase {
 
 
     protected prepareSource = (async: boolean): string => {
-        if (!String.isEmpty(this._source)) return this._source;
+        if (!MiscHelper.isEmptyString(this._source)) return this._source;
 
-        let sanitizedFilename = String.isEmpty(this.options.templateFilename) ? JSON.stringify(this.options.templateFilename) : 'undefined';
+        let sanitizedFilename = MiscHelper.isEmptyString(this.options.templateFilename) ? JSON.stringify(this.options.templateFilename) : 'undefined';
 
         let src = '', prepended = '', appended = '';
 
@@ -48,11 +48,11 @@ export abstract class CompilerBase {
         this.generateSource(async);
 
         prepended += 'let __output = ""; \n function __append(s) { if (s !== undefined && s !== null) __output += s }\n';
-        /* if (!String.isEmpty(this.options.outputFunctionName)) {
+        /* if (!MiscHelper.isEmptyString(this.options.outputFunctionName)) {
              if (!MiscHelper.isJavaScriptIdentifier(this.options.outputFunctionName!)) throw new Error('outputFunctionName is not a valid JS identifier.');
              prepended += `  var ${this.options.outputFunctionName} = __append;\n`;//'  var ' + this.options.outputFunctionName + ' = __append;' + '\n';
          }*/
-        if (!String.isEmpty(this.options.localsName) && !MiscHelper.isJavaScriptIdentifier(this.options.localsName)) throw new Error('localsName is not a valid JS identifier.');
+        if (!MiscHelper.isEmptyString(this.options.localsName) && !MiscHelper.isJavaScriptIdentifier(this.options.localsName)) throw new Error('localsName is not a valid JS identifier.');
 
         if (this.options.destructuredLocals instanceof Array && this.options.destructuredLocals.length) {
             var destructuring = `  var __locals = (${this.options.localsName} || {}),\n`; //'  var __locals = (' + this.options.localsName + ' || {}),\n';
@@ -90,7 +90,7 @@ export abstract class CompilerBase {
 
         if (this.options.useStrict) src = '"use strict";\n' + src;
         if (this.options.debug) this.logger.debug(src);
-        if (this.options.compileDebug && !String.isEmpty(this.options.templateFilename))
+        if (this.options.compileDebug && !MiscHelper.isEmptyString(this.options.templateFilename))
             src = `${src}\n//# sourceURL=${sanitizedFilename}\n`; //src + '\n' + '//# sourceURL=' + sanitizedFilename + '\n';
 
         this._source = src;
@@ -120,7 +120,7 @@ export abstract class CompilerBase {
 
                 if (/^\s*include\s*\(/.test(line)) //Fixing missing the "this." pointer.
                     line = ' this.' + line.trim();
-                
+
                 if (async && /^\s*this\.include\s*\(/.test(line)) {
                     line = ' await ' + line.trim();
                 }
@@ -152,7 +152,7 @@ export abstract class CompilerBase {
             result = this.regex.exec(template);
         }
 
-        if (!String.isEmpty(template)) arr.push(template);
+        if (!MiscHelper.isEmptyString(template)) arr.push(template);
 
         return arr;
     };
@@ -273,8 +273,8 @@ export abstract class CompilerBase {
         }).join('\n');
 
         err.cause = filename;
-        err.message = `${filename ?? ''}:`.trimEndX(':');
-        err.message = `${(`${filename ?? ''}:`.trimEndX(':'))}${lineno}\n${context}\n\n${err.message}`;
+        err.message = MiscHelper.stringTrimEnd(`${filename ?? ''}:`, [':']);
+        err.message = `${MiscHelper.stringTrimEnd(`${filename ?? ''}:`, [':'])}${lineno}\n${context}\n\n${err.message}`;
 
         throw err;
     };

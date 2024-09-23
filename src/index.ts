@@ -1,4 +1,3 @@
-import './extensions';
 export * from './engine';
 export * from './types';
 export * as helpers from './helpers';

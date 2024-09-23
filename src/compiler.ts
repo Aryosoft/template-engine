@@ -18,12 +18,12 @@ export class Compiler implements types.ICompiler {
 
     private getCompilerOptions(templateFilename?: string): types.CompilOptions {
         return {
-            delimiter: String.coalesce(this.options.delimiter, '%')!,
-            openDelimiter: String.coalesce(this.options.delimiter, '<')!,
-            closeDelimiter: String.coalesce(this.options.delimiter, '>')!,
+            delimiter: MiscHelper.stringCoalesce(this.options.delimiter, '%')!,
+            openDelimiter: MiscHelper.stringCoalesce(this.options.delimiter, '<')!,
+            closeDelimiter: MiscHelper.stringCoalesce(this.options.delimiter, '>')!,
             removeWhitespaces: Boolean(this.options.removeWhitespaces),
             clientMode: Boolean(this.options.clientMode),
-           // renderContext: this.options.renderContext ?? {},
+            // renderContext: this.options.renderContext ?? {},
             compileDebug: Boolean(this.options.compileDebug),
             debug: Boolean(this.options.debug),
             useStrict: Boolean(this.options.useStrict),

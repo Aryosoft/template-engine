@@ -1,4 +1,4 @@
-import { TypeHelper } from './helpers';
+import { TypeHelper, MiscHelper } from './helpers';
 import { AsyncRenderCache, SyncRenderCache } from './cache';
 import * as types from './types';
 
@@ -103,11 +103,11 @@ export class Engine implements types.IEngine {
             if (!TypeHelper.isPlainObject(model))
                 throw new types.TypeMismatchException('model.template', 'Plain Object');
 
-            if (String.isEmpty(model.template.template))
+            if (MiscHelper.isEmptyString(model.template.template))
                 throw new types.ArgumentNullException('model.template.template', 'Template content or template filename is required.');
 
             if (TypeHelper.isPlainObject(model.cache)) {
-                if (String.isEmpty(model.cache!.key))
+                if (MiscHelper.isEmptyString(model.cache!.key))
                     throw new types.ArgumentNullException('model.cache.key', 'The cache.key is required.');
             }
             else
@@ -121,7 +121,7 @@ export class Engine implements types.IEngine {
         }
     }
     private getCacheKey = (model: types.CompileModel): string => {
-        if (String.isEmpty(model.cache!.key)) throw new types.ArgumentNullException('cache.key');
+        if (MiscHelper.isEmptyString(model.cache!.key)) throw new types.ArgumentNullException('cache.key');
         return model.cache!.key;
         // model.template.isFile ? model.template.template.trim().toLowerCase() : model.cache!.key
     }

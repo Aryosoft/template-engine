@@ -1,6 +1,7 @@
 import * as types from '../types';
 import { CompilerBase } from './compiler-base';
 import { AsyncRenderDelegate } from './delegates';
+import { MiscHelper } from '../helpers';
 
 export class AsyncCompiler extends CompilerBase {
     constructor(
@@ -72,7 +73,7 @@ export class AsyncCompiler extends CompilerBase {
             return (new AsyncFunc('$model', 'escapeFn', 'include', 'rethrow', source)).bind(this);
         }
         catch (e) {
-            if (e instanceof SyntaxError && !String.isEmpty(this.options.templateFilename))
+            if (e instanceof SyntaxError && !MiscHelper.isEmptyString(this.options.templateFilename))
                 e.message += ` in "${this.options.templateFilename}".`;
             throw e;
         }
