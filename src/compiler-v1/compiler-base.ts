@@ -1,4 +1,4 @@
-import { MiscHelper } from '../helpers';
+import { MiscHelper, TypeHelper } from '../helpers';
 import { LayoutResolver } from '../layout-resolver';
 import * as types from '../types';
 
@@ -36,6 +36,17 @@ export abstract class CompilerBase {
         return this._source;
     }
 
+    protected logRendererFunc(renderer: Function): void {
+        if (TypeHelper.isFunc(this.options.renderFuncLogger)) {
+            try {
+               
+                this.options.renderFuncLogger!(renderer.toString());
+            }
+            catch {
+                //Ignoring the error. There is no need to handle the error.
+            }
+        }
+    }
 
     protected prepareSource = (async: boolean): string => {
         if (!MiscHelper.isEmptyString(this._source)) return this._source;
@@ -52,9 +63,10 @@ export abstract class CompilerBase {
              if (!MiscHelper.isJavaScriptIdentifier(this.options.outputFunctionName!)) throw new Error('outputFunctionName is not a valid JS identifier.');
              prepended += `  var ${this.options.outputFunctionName} = __append;\n`;//'  var ' + this.options.outputFunctionName + ' = __append;' + '\n';
          }*/
-        if (!MiscHelper.isEmptyString(this.options.localsName) && !MiscHelper.isJavaScriptIdentifier(this.options.localsName)) throw new Error('localsName is not a valid JS identifier.');
+        if (!MiscHelper.isEmptyString(this.options.localsName) && !MiscHelper.isJavaScriptIdentifier(this.options.localsName)) 
+            throw new Error('localsName is not a valid JS identifier.');
 
-        if (this.options.destructuredLocals instanceof Array && this.options.destructuredLocals.length) {
+        if (this.options.destructuredLocals instanceof Array && this.options.destructuredLocals.length > 0) {
             var destructuring = `  var __locals = (${this.options.localsName} || {}),\n`; //'  var __locals = (' + this.options.localsName + ' || {}),\n';
             for (let i = 0; i < this.options.destructuredLocals.length; i++) {
                 var name = this.options.destructuredLocals[i];
@@ -158,10 +170,18 @@ export abstract class CompilerBase {
     };
 
     private scanLine = (line: string): void => {
-        let od = this.options.openDelimiter + this.options.delimiter, od_ = `${od}_`, od_dash = `${od}-`, od_eq = `${od}=`, od_hash = `${od}#`, odd = this.options.openDelimiter + this.options.delimiter + this.options.delimiter, dc = this.options.delimiter + this.options.closeDelimiter, ddc = this.options.delimiter + this.options.delimiter + this.options.closeDelimiter, dash_dc = `-${dc}`, _dc = `_${dc}`;
-        var newLineCount = 0;
+        let od = this.options.openDelimiter + this.options.delimiter,
+            od_ = `${od}_`,
+            od_dash = `${od}-`,
+            od_eq = `${od}=`,
+            od_hash = `${od}#`,
+            odd = this.options.openDelimiter + this.options.delimiter + this.options.delimiter,
+            dc = this.options.delimiter + this.options.closeDelimiter,
+            ddc = this.options.delimiter + this.options.delimiter + this.options.closeDelimiter,
+            dash_dc = `-${dc}`,
+            _dc = `_${dc}`;
 
-        newLineCount = (line.split('\n').length - 1);
+        var newLineCount = (line.split('\n').length - 1);
 
         // if(/\bthis\.useLayout\s*\(/.test(line)){
         //     line = line.replace(/\bthis\.useLayout\s*\(/, '__layout = this.useLayout(')
@@ -280,7 +300,9 @@ export abstract class CompilerBase {
     };
 
     private createRegex = () => {
-        let delim = MiscHelper.escapeRegExpChars(this.options.delimiter), open = MiscHelper.escapeRegExpChars(this.options.openDelimiter), close = MiscHelper.escapeRegExpChars(this.options.closeDelimiter);
+        let delim = MiscHelper.escapeRegExpChars(this.options.delimiter),
+            open = MiscHelper.escapeRegExpChars(this.options.openDelimiter),
+            close = MiscHelper.escapeRegExpChars(this.options.closeDelimiter);
 
         let str = '(<%%|%%>|<%=|<%-|<%_|<%#|<%|%>|-%>|_%>)'
             .replace(/%/g, delim)

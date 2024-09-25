@@ -32,7 +32,8 @@ export class Compiler implements types.ICompiler {
             outputFunctionName: '_renderTemplate',
             localsName: 'locals',
             destructuredLocals: [],
-            escape: MiscHelper.escapeXML
+            escape: MiscHelper.escapeXML,
+            renderFuncLogger: this.options.renderFuncLogger
         }
     }
 }

@@ -3,6 +3,5 @@ node_modules/
 tests/
 build/
 tsconfig.json
-tsconfig-publish.json
 .gitignore
 .env

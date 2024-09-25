@@ -2,6 +2,7 @@ import * as types from '../types';
 import { CompilerBase } from './compiler-base';
 import { SyncRenderDelegate } from './delegates';
 import { MiscHelper } from '../helpers';
+import { helpers } from '..';
 
 export class SyncCompiler extends CompilerBase {
     constructor(
@@ -16,10 +17,14 @@ export class SyncCompiler extends CompilerBase {
     public compile(): types.SyncRenderDelegate {
         this.template = this.layoutResolver.resolve(this.template);
 
-        return (function (context: SyncCompiler, data?: types.PlainObject): string {
+        let func = (function (context: SyncCompiler, data?: types.PlainObject): string {
             let fn = context.getDelegate();
-            return fn.apply({ ...context }, [{ ...data }, context.options.escape, context.include, context.rethrow]);
+            context.logRendererFunc(fn);
+           return fn.apply(context, [{ ...data }, context.options.escape, context.include, context.rethrow]);
         }).bind(this, this);
+
+
+        return func;
     }
 
     private delegate: SyncRenderDelegate | null = null;
@@ -35,7 +40,7 @@ export class SyncCompiler extends CompilerBase {
 
     private generateDelegate = (source: string): SyncRenderDelegate => {
         try {
-            return (new Function('$model', 'escapeFn', 'include', 'rethrow', source).bind(this));
+            return new Function('$model', 'escapeFn', 'include', 'rethrow', source) as SyncRenderDelegate;//.bind(this));
         }
         catch (e) {
             if (e instanceof SyntaxError && !MiscHelper.isEmptyString(this.options.templateFilename))

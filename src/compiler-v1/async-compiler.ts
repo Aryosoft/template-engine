@@ -22,8 +22,10 @@ export class AsyncCompiler extends CompilerBase {
 
                     let func = (function (context: AsyncCompiler, data?: types.PlainObject): Promise<string> {
                         let fn = context.getDelegate();
-                        return fn.apply({ ...context }, [{ ...data }, context.options.escape, context.include, context.rethrow]);
+                        context.logRendererFunc(fn);
+                        return fn.apply(context, [{ ...data }, context.options.escape, context.include, context.rethrow]);
                     }).bind(this, this);
+                    
 
                     resolve(func);
                 })
@@ -70,7 +72,7 @@ export class AsyncCompiler extends CompilerBase {
     private generateDelegate = (source: string): AsyncRenderDelegate => {
         try {
             let AsyncFunc = Object.getPrototypeOf(async function () { }).constructor;
-            return (new AsyncFunc('$model', 'escapeFn', 'include', 'rethrow', source)).bind(this);
+            return (new AsyncFunc('$model', 'escapeFn', 'include', 'rethrow', source));//.bind(this);
         }
         catch (e) {
             if (e instanceof SyntaxError && !MiscHelper.isEmptyString(this.options.templateFilename))

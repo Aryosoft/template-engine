@@ -6,6 +6,7 @@ export type EngineOptions =
         openDelimiter?: string,
         closeDelimiter?: string,
         removeWhitespaces?: boolean,
+        renderFuncLogger?: (renderer: string) => void,
         clientMode?: boolean,
         compileDebug?: boolean,
         debug?: boolean,
@@ -25,7 +26,8 @@ export type CompilOptions = {
     outputFunctionName?: string,
     localsName: string,
     destructuredLocals: string[],
-    escape?: (input?: string) => string
+    escape?: (input?: string) => string,
+    renderFuncLogger?: (renderer: string) => void,
 }
 
 export type CompileModel = {
