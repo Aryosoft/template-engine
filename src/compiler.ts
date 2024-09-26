@@ -19,8 +19,8 @@ export class Compiler implements types.ICompiler {
     private getCompilerOptions(templateFilename?: string): types.CompilOptions {
         return {
             delimiter: MiscHelper.stringCoalesce(this.options.delimiter, '%')!,
-            openDelimiter: MiscHelper.stringCoalesce(this.options.delimiter, '<')!,
-            closeDelimiter: MiscHelper.stringCoalesce(this.options.delimiter, '>')!,
+            openDelimiter: MiscHelper.stringCoalesce(this.options.openDelimiter, '<')!,
+            closeDelimiter: MiscHelper.stringCoalesce(this.options.closeDelimiter, '>')!,
             removeWhitespaces: Boolean(this.options.removeWhitespaces),
             clientMode: Boolean(this.options.clientMode),
             // renderContext: this.options.renderContext ?? {},
