@@ -39,7 +39,7 @@ export abstract class CompilerBase {
     protected logRendererFunc(renderer: Function): void {
         if (TypeHelper.isFunc(this.options.renderFuncLogger)) {
             try {
-               
+
                 this.options.renderFuncLogger!(renderer.toString());
             }
             catch {
@@ -63,7 +63,7 @@ export abstract class CompilerBase {
              if (!MiscHelper.isJavaScriptIdentifier(this.options.outputFunctionName!)) throw new Error('outputFunctionName is not a valid JS identifier.');
              prepended += `  var ${this.options.outputFunctionName} = __append;\n`;//'  var ' + this.options.outputFunctionName + ' = __append;' + '\n';
          }*/
-        if (!MiscHelper.isEmptyString(this.options.localsName) && !MiscHelper.isJavaScriptIdentifier(this.options.localsName)) 
+        if (!MiscHelper.isEmptyString(this.options.localsName) && !MiscHelper.isJavaScriptIdentifier(this.options.localsName))
             throw new Error('localsName is not a valid JS identifier.');
 
         if (this.options.destructuredLocals instanceof Array && this.options.destructuredLocals.length > 0) {
@@ -183,9 +183,7 @@ export abstract class CompilerBase {
 
         var newLineCount = (line.split('\n').length - 1);
 
-        // if(/\bthis\.useLayout\s*\(/.test(line)){
-        //     line = line.replace(/\bthis\.useLayout\s*\(/, '__layout = this.useLayout(')
-        // }
+
         switch (line) {
             case od:
             case od_:
@@ -284,7 +282,10 @@ export abstract class CompilerBase {
     private stripSemi = (str: string): string => str.replace(/;(\s*$)/, '$1');
 
     protected rethrow = (err: Error, str: string, flnm: string, lineno: number, esc: (input: string) => string): void => {
-        let lines = str.split('\n'), start = Math.max(lineno - 3, 0), end = Math.min(lines.length, lineno + 3), filename = esc(flnm);
+        let lines = str.split('\n'),
+            start = Math.max(lineno - 3, 0),
+            end = Math.min(lines.length, lineno + 3),
+            filename = esc(flnm);
 
         // Error context
         let context = lines.slice(start, end).map((line, i) => {
@@ -308,6 +309,7 @@ export abstract class CompilerBase {
             .replace(/%/g, delim)
             .replace(/</g, open)
             .replace(/>/g, close);
+
         return new RegExp(str);
     };
 }
