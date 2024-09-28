@@ -76,8 +76,8 @@ export class LayoutResolver {
         return info;
     }
 
-    private getLayoutInfo(layoutName: string): TLayoutInfo {
-        let template = this.loader.load(layoutName);
+    private getLayoutInfo(layoutName: string, loaderModel: types.PlainObject): TLayoutInfo {
+        let template = this.loader.load(layoutName, loaderModel);
         let info: TLayoutInfo = { documnt: htmlParser.parse(template), body: null, sections: {} };
 
         info.body = info.documnt.querySelector(Tags.layoutRenderBodyTagName);
@@ -94,14 +94,14 @@ export class LayoutResolver {
         if (page.isPartialPage) {
             if (page.layoutName.trim().toLowerCase() == layoutName.trim().toLowerCase())
                 throw new Error(Messages.circularLayout);
-            info.parent = this.getLayoutInfo(page.layoutName);
+            info.parent = this.getLayoutInfo(page.layoutName, loaderModel);
         }
         return info;
     }
 
-    private getLayoutInfoAsync(layoutName: string): Promise<TLayoutInfo> {
+    private getLayoutInfoAsync(layoutName: string, loaderModel: types.PlainObject): Promise<TLayoutInfo> {
         return new Promise<TLayoutInfo>((resolve, reject) => {
-            this.loader.loadAsync(layoutName)
+            this.loader.loadAsync(layoutName, loaderModel)
                 .then(template => {
                     let info: TLayoutInfo = { documnt: htmlParser.parse(template), body: null, sections: {} };
 
@@ -120,7 +120,7 @@ export class LayoutResolver {
                         if (page.layoutName.trim().toLowerCase() == layoutName.trim().toLowerCase())
                             reject(new Error(Messages.circularLayout));
                         else
-                            this.getLayoutInfoAsync(page.layoutName)
+                            this.getLayoutInfoAsync(page.layoutName, loaderModel)
                                 .then(parent => {
                                     info.parent = parent;
                                     resolve(info);
@@ -159,17 +159,17 @@ export class LayoutResolver {
         return `${codes.join('\r\n').trim()}\r\n${finalMarkup}`.trim();
     }
 
-    public resolve(template: string): string {
+    public resolve(template: string, loaderModel: types.PlainObject): string {
         let page = this.getPageInfo(template);
         return page.isPartialPage
-            ? this.merge(page, this.getLayoutInfo(page.layoutName))
+            ? this.merge(page, this.getLayoutInfo(page.layoutName, loaderModel))
             : template;
     }
 
-    public resolveAsync(template: string): Promise<string> {
+    public resolveAsync(template: string, loaderModel: types.PlainObject): Promise<string> {
         let page = this.getPageInfo(template);
         return page.isPartialPage
-            ? this.getLayoutInfoAsync(page.layoutName).then(layout => this.merge(page, layout))
+            ? this.getLayoutInfoAsync(page.layoutName, loaderModel).then(layout => this.merge(page, layout))
             : Promise.resolve(template);
     }
 }

@@ -32,6 +32,7 @@ export type CompilOptions = {
 
 export type CompileModel = {
     template: { template: string, isFile?: boolean },
+    loaderModel?: PlainObject,
     cache?: {
         /**A mandatory unique string key. It is better to leave a Guid as key.*/
         key: string,
@@ -61,8 +62,8 @@ export interface IEngine {
 }
 
 export interface ITemplateLoader {
-    load(filename: string): string;
-    loadAsync(filename: string): Promise<string>;
+    load(filename: string, model: PlainObject): string;
+    loadAsync(filename: string, model: PlainObject): Promise<string>;
 }
 
 export interface ILogger {
@@ -72,8 +73,8 @@ export interface ILogger {
 }
 
 export interface ICompiler {
-    compile(templte: string, templateFilename?: string): SyncRenderDelegate;
-    compileAsync(templte: string, templateFilename?: string): Promise<AsyncRenderDelegate>;
+    compile(loaderModel: PlainObject, template: string, templateFilename?: string): SyncRenderDelegate;
+    compileAsync(loaderModel: PlainObject, template: string, templateFilename?: string): Promise<AsyncRenderDelegate>;
 }
 
 //#region ----- Errors ----------------------

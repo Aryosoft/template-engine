@@ -5,6 +5,7 @@ import { MiscHelper } from '../helpers';
 
 export class AsyncCompiler extends CompilerBase {
     constructor(
+        private loaderModel: types.PlainObject, 
         template: string,
         options: types.CompilOptions,
         loader: types.ITemplateLoader,
@@ -16,7 +17,7 @@ export class AsyncCompiler extends CompilerBase {
     public compile(): Promise<AsyncRenderDelegate> {
         return new Promise<AsyncRenderDelegate>((resolve, reject) => {
             this.layoutResolver
-                .resolveAsync(this.template)
+                .resolveAsync(this.template, this.loaderModel)
                 .then(tmpl => {
                     this.template = tmpl;
 
@@ -89,7 +90,7 @@ export class AsyncCompiler extends CompilerBase {
 
     private include(partialName: string, includeData?: types.PlainObject): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            this.loader.loadAsync(partialName)
+            this.loader.loadAsync(partialName, this.loaderModel)
                 .then(template => {
                     this.clone(template)
                         .compile()
@@ -104,6 +105,6 @@ export class AsyncCompiler extends CompilerBase {
         });
     }
 
-    private clone = (template: string): AsyncCompiler => new AsyncCompiler(template, this.options, this.loader, this.logger);
+    private clone = (template: string): AsyncCompiler => new AsyncCompiler(this.loaderModel, template, this.options, this.loader, this.logger);
 }
 

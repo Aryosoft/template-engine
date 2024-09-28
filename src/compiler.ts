@@ -11,8 +11,8 @@ export class Compiler implements types.ICompiler {
         this.options = TypeHelper.isPlainObject(options) ? options! : {};
     }
 
-    compile = (templte: string, templateFilename?: string): types.SyncRenderDelegate => new v1.SyncCompiler(templte, this.getCompilerOptions(templateFilename), this.loader, this.logger).compile();
-    compileAsync = (templte: string, templateFilename?: string): Promise<types.AsyncRenderDelegate> => new v1.AsyncCompiler(templte, this.getCompilerOptions(templateFilename), this.loader, this.logger).compile();
+    compile = (loaderModel: types.PlainObject, template: string, templateFilename?: string): types.SyncRenderDelegate => new v1.SyncCompiler(loaderModel, template, this.getCompilerOptions(templateFilename), this.loader, this.logger).compile();
+    compileAsync = (loaderModel: types.PlainObject, template: string, templateFilename?: string): Promise<types.AsyncRenderDelegate> => new v1.AsyncCompiler(loaderModel, template, this.getCompilerOptions(templateFilename), this.loader, this.logger).compile();
 
     private readonly options: types.EngineOptions = null!;
 

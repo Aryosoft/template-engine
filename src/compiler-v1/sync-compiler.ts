@@ -2,10 +2,10 @@ import * as types from '../types';
 import { CompilerBase } from './compiler-base';
 import { SyncRenderDelegate } from './delegates';
 import { MiscHelper } from '../helpers';
-import { helpers } from '..';
 
 export class SyncCompiler extends CompilerBase {
     constructor(
+        private loaderModel: types.PlainObject, 
         template: string,
         options: types.CompilOptions,
         loader: types.ITemplateLoader,
@@ -15,7 +15,7 @@ export class SyncCompiler extends CompilerBase {
     }
 
     public compile(): types.SyncRenderDelegate {
-        this.template = this.layoutResolver.resolve(this.template);
+        this.template = this.layoutResolver.resolve(this.template, this.loaderModel);
 
         let func = (function (context: SyncCompiler, data?: types.PlainObject): string {
             let fn = context.getDelegate();
@@ -50,11 +50,11 @@ export class SyncCompiler extends CompilerBase {
     }
 
     private include(partialName: string, includeData?: types.PlainObject): string {
-        let template = this.loader.load(partialName);
+        let template = this.loader.load(partialName, this.loaderModel);
         return this.clone(template)
             .compile()
             .call(this, includeData);
     }
 
-    private clone = (template: string): SyncCompiler => new SyncCompiler(template, this.options, this.loader, this.logger);
+    private clone = (template: string): SyncCompiler => new SyncCompiler(this.loaderModel, template, this.options, this.loader, this.logger);
 }

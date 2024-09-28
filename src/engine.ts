@@ -18,7 +18,7 @@ export class Engine implements types.IEngine {
 
             if (!TypeHelper.isFunc(renderFunc)) {
                 let template = this.getTemplate(model);
-                renderFunc = this.compiler.compile(template, this.getTemplateName(model));
+                renderFunc = this.compiler.compile(model.loaderModel ?? {}, template, this.getTemplateName(model));
                 this._syncRenderCache.put({ key: key, duration: model.cache.duration }, renderFunc);
             }
 
@@ -26,7 +26,7 @@ export class Engine implements types.IEngine {
         }
         else {
             let template = this.getTemplate(model);
-            let renderFunc = this.compiler.compile(template, this.getTemplateName(model));
+            let renderFunc = this.compiler.compile(model.loaderModel ?? {}, template, this.getTemplateName(model));
             return renderFunc;
         }
     }
@@ -43,7 +43,7 @@ export class Engine implements types.IEngine {
                 this.getTemplateAsync(model)
                     .then(template => {
 
-                        this.compiler.compileAsync(template, this.getTemplateName(model))
+                        this.compiler.compileAsync(model.loaderModel ?? {}, template, this.getTemplateName(model))
                             .then(renderFunc => {
                                 this._asyncRenderCache.put({ key: key, duration: model.cache!.duration }, renderFunc);
                                 resolve(renderFunc);
@@ -55,7 +55,7 @@ export class Engine implements types.IEngine {
             else {
                 this.getTemplateAsync(model)
                     .then(template => {
-                        let renderFunc = this.compiler.compileAsync(template, this.getTemplateName(model));
+                        let renderFunc = this.compiler.compileAsync(model.loaderModel ?? {}, template, this.getTemplateName(model));
                         resolve(renderFunc);
                     })
                     .catch(reject);
@@ -126,6 +126,6 @@ export class Engine implements types.IEngine {
         // model.template.isFile ? model.template.template.trim().toLowerCase() : model.cache!.key
     }
     private getTemplateName = (model: types.CompileModel): string => model.template.isFile ? model.template.template : '';
-    private getTemplate = (model: types.CompileModel): string => model.template.isFile ? this.templateLoader.load(model.template.template) : model.template.template;
-    private getTemplateAsync = (model: types.CompileModel): Promise<string> => model.template.isFile ? this.templateLoader.loadAsync(model.template.template) : Promise.resolve(model.template.template);
+    private getTemplate = (model: types.CompileModel): string => model.template.isFile ? this.templateLoader.load(model.template.template, model.loaderModel ?? {}) : model.template.template;
+    private getTemplateAsync = (model: types.CompileModel): Promise<string> => model.template.isFile ? this.templateLoader.loadAsync(model.template.template, model.loaderModel ?? {}) : Promise.resolve(model.template.template);
 }
