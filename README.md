@@ -194,7 +194,7 @@ app.listen(port, () => {
 <p>
   Inside the layout:</br>
   <ul>
-    <li><b>&lt;render-body/&gt;</b>&nbsp;&nbsp; In order to specify the place which the body of the partial will appear into. This tag is mandatory and layout templates must have only and only one of this tag.</li>
+    <li><b>&lt;render-body/&gt;</b>&nbsp;&nbsp; In order to specify the place where the body of the partial will appear into. This tag is mandatory and layout templates must have only and only one of this tag.</li>
     <li><b>&lt;render-section name="section-name"/&gt;</b>&nbsp;&nbsp; In order to define sections. This tag is not mandatory. Layout templates might have several render-section tags.</li>
   </ul>
 </p>
