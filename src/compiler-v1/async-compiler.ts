@@ -1,30 +1,32 @@
 import * as types from '../types';
 import { CompilerBase } from './compiler-base';
-import { AsyncRenderDelegate } from './delegates';
-import { MiscHelper } from '../helpers';
+import { MiscHelper , TypeHelper} from '../utils';
+import { AsyncCompilerFunc } from './delegates';
+
 
 export class AsyncCompiler extends CompilerBase {
     constructor(
-        private loaderModel: types.PlainObject, 
+        private readonly service: types.PlainObject,
+        private readonly loadTemplateMetaData: types.PlainObject, 
         template: string,
-        options: types.CompilOptions,
+        options: types.CompilerSettings,
         loader: types.ITemplateLoader,
         logger: types.ILogger
     ) {
         super(template, options, loader, logger);
     }
 
-    public compile(): Promise<AsyncRenderDelegate> {
-        return new Promise<AsyncRenderDelegate>((resolve, reject) => {
+    public compile(): Promise<types.AsyncRenderDelegate> {
+        return new Promise<types.AsyncRenderDelegate>((resolve, reject) => {
             this.layoutResolver
-                .resolveAsync(this.template, this.loaderModel)
+                .resolveAsync(this.template, this.loadTemplateMetaData)
                 .then(tmpl => {
                     this.template = tmpl;
 
-                    let func = (function (context: AsyncCompiler, data?: types.PlainObject): Promise<string> {
-                        let fn = context.getDelegate();
-                        context.logRendererFunc(fn);
-                        return fn.apply(context, [{ ...data }, context.options.escape, context.include, context.rethrow]);
+                    let func = (function (self: AsyncCompiler, viewModel?: types.PlainObject): Promise<string> {
+                        let fn = self.getDelegate();
+                        self.logRendererFunc(fn);
+                        return fn.apply(global, [self.service, viewModel, self.options.escape, self.include.bind(self), self.rethrow]);
                     }).bind(this, this);
                     
 
@@ -32,37 +34,12 @@ export class AsyncCompiler extends CompilerBase {
                 })
                 .catch(reject);
         });
-
-
-
-
-
-        /* let fn = this.getDelegate();
- 
-         let renderFunc = this.options.clientMode ? fn : (data?: types.PlainObject) => {
- 
-             let include = (partialName: string, includeData: types.PlainObject) => {
- 
-                 return new Promise<string>((resolve, reject) => {
-                     this.asyncInclude(partialName)
-                         .then(compiler => {
-                             
-                         })
-                         .catch(reject);
-                 });
-             };
- 
-             return fn.apply({}, [data || {}, this.options.escape, include, this.rethrow]);
-             // return fn.apply(this.options.renderContext, [data || {}, this.options.escape, include, this.rethrow]);
-         };
- 
-         return renderFunc;*/
     }
 
-    private delegate: AsyncRenderDelegate | null = null;
+    private delegate: AsyncCompilerFunc | null = null;
 
-    private getDelegate = (): AsyncRenderDelegate => {
-        if (!(this.delegate instanceof Function)) {
+    private getDelegate = (): AsyncCompilerFunc => {
+        if (!TypeHelper.isFunc(this.delegate)) {
             let src = this.prepareSource(true);
             this.delegate = this.generateDelegate(src);
         }
@@ -70,10 +47,10 @@ export class AsyncCompiler extends CompilerBase {
         return this.delegate!;
     }
 
-    private generateDelegate = (source: string): AsyncRenderDelegate => {
+    private generateDelegate = (source: string): types.AsyncRenderDelegate => {
         try {
             let AsyncFunc = Object.getPrototypeOf(async function () { }).constructor;
-            return (new AsyncFunc('$model', 'escapeFn', 'include', 'rethrow', source));//.bind(this);
+            return (new AsyncFunc('$service, $model', 'escapeFn', 'include', 'rethrow', source));//.bind(this);
         }
         catch (e) {
             if (e instanceof SyntaxError && !MiscHelper.isEmptyString(this.options.templateFilename))
@@ -90,7 +67,7 @@ export class AsyncCompiler extends CompilerBase {
 
     private include(partialName: string, includeData?: types.PlainObject): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            this.loader.loadAsync(partialName, this.loaderModel)
+            this.loader.loadAsync(partialName, this.loadTemplateMetaData)
                 .then(template => {
                     this.clone(template)
                         .compile()
@@ -105,6 +82,6 @@ export class AsyncCompiler extends CompilerBase {
         });
     }
 
-    private clone = (template: string): AsyncCompiler => new AsyncCompiler(this.loaderModel, template, this.options, this.loader, this.logger);
+    private clone = (template: string): AsyncCompiler => new AsyncCompiler(this.service, this.loadTemplateMetaData, template, this.options, this.loader, this.logger);
 }
 

@@ -1,6 +1,6 @@
-import * as types from './types';
+import * as types from '../types';
 import * as htmlParser from 'node-html-parser';
-import { MiscHelper } from './helpers';
+import { MiscHelper } from './misc-helper';
 
 type TPageInfo = {
     isPartialPage: boolean,
@@ -47,6 +47,10 @@ const Messages = Object.freeze({
     missingRenderBodyTag: `Missing required tag => <${Tags.layoutRenderBodyTagName}/>`,
 });
 
+/**
+ * @internal
+ * The LayoutResolver is for internal use within th package only
+ */
 export class LayoutResolver {
     constructor(private readonly loader: types.ITemplateLoader) { }
 

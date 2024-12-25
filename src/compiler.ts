@@ -1,22 +1,32 @@
 import * as types from './types';
 import * as v1 from './compiler-v1/index';
-import { MiscHelper, TypeHelper } from './helpers';
+import { MiscHelper, TypeHelper } from './utils';
 
 export class Compiler implements types.ICompiler {
     constructor(
         private readonly loader: types.ITemplateLoader,
         private readonly logger: types.ILogger,
-        options: types.EngineOptions = {}
+        options: types.EngineSettings = {}
     ) {
         this.options = TypeHelper.isPlainObject(options) ? options! : {};
     }
 
-    compile = (loaderModel: types.PlainObject, template: string, templateFilename?: string): types.SyncRenderDelegate => new v1.SyncCompiler(loaderModel, template, this.getCompilerOptions(templateFilename), this.loader, this.logger).compile();
-    compileAsync = (loaderModel: types.PlainObject, template: string, templateFilename?: string): Promise<types.AsyncRenderDelegate> => new v1.AsyncCompiler(loaderModel, template, this.getCompilerOptions(templateFilename), this.loader, this.logger).compile();
+    compile = (template: string, options?:  types.CompileOptions): types.SyncRenderDelegate => 
+    {
+        options = options ?? {};
+        return new v1.SyncCompiler(options.renderService ?? {}, options.loaderMetaData ?? {}, template, this.getCompilerOptions(options.templateFilename), this.loader, this.logger)
+            .compile();
+    }
 
-    private readonly options: types.EngineOptions = null!;
+    compileAsync = (template: string, options?:  types.CompileOptions): Promise<types.AsyncRenderDelegate> => 
+    {
+        options = options ?? {};
+        return new v1.AsyncCompiler(options.renderService ?? {}, options.loaderMetaData ?? {}, template, this.getCompilerOptions(options.templateFilename), this.loader, this.logger).compile();
+    }
 
-    private getCompilerOptions(templateFilename?: string): types.CompilOptions {
+    private readonly options: types.EngineSettings = null!;
+
+    private getCompilerOptions(templateFilename?: string): types.CompilerSettings {
         return {
             delimiter: MiscHelper.stringCoalesce(this.options.delimiter, '%')!,
             openDelimiter: MiscHelper.stringCoalesce(this.options.openDelimiter, '<')!,

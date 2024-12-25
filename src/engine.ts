@@ -1,5 +1,5 @@
-import { TypeHelper, MiscHelper } from './helpers';
-import { AsyncRenderCache, SyncRenderCache } from './cache';
+import { TypeHelper, MiscHelper } from './utils';
+import { AsyncRenderCache, SyncRenderCache } from './utils/memory-cache';
 import * as types from './types';
 
 export class Engine implements types.IEngine {
@@ -18,7 +18,7 @@ export class Engine implements types.IEngine {
 
             if (!TypeHelper.isFunc(renderFunc)) {
                 let template = this.getTemplate(model);
-                renderFunc = this.compiler.compile(model.loaderModel ?? {}, template, this.getTemplateName(model));
+                renderFunc = this.compiler.compile(template, this.getCompileOptions(model));
                 this._syncRenderCache.put({ key: key, duration: model.cache.duration }, renderFunc);
             }
 
@@ -26,8 +26,7 @@ export class Engine implements types.IEngine {
         }
         else {
             let template = this.getTemplate(model);
-            let renderFunc = this.compiler.compile(model.loaderModel ?? {}, template, this.getTemplateName(model));
-            return renderFunc;
+            return this.compiler.compile(template, this.getCompileOptions(model));
         }
     }
 
@@ -38,12 +37,13 @@ export class Engine implements types.IEngine {
             if (model.cache) {
                 let key = this.getCacheKey(model);
                 let renderFunc = this._asyncRenderCache.get(key);
-                if (TypeHelper.isFunc(renderFunc)) return resolve(renderFunc!);
+                if (TypeHelper.isFunc(renderFunc)) {
+                    return resolve(renderFunc!);
+                }
 
                 this.getTemplateAsync(model)
                     .then(template => {
-
-                        this.compiler.compileAsync(model.loaderModel ?? {}, template, this.getTemplateName(model))
+                        this.compiler.compileAsync(template, this.getCompileOptions(model))
                             .then(renderFunc => {
                                 this._asyncRenderCache.put({ key: key, duration: model.cache!.duration }, renderFunc);
                                 resolve(renderFunc);
@@ -55,8 +55,9 @@ export class Engine implements types.IEngine {
             else {
                 this.getTemplateAsync(model)
                     .then(template => {
-                        let renderFunc = this.compiler.compileAsync(model.loaderModel ?? {}, template, this.getTemplateName(model));
-                        resolve(renderFunc);
+                        this.compiler.compileAsync(template, this.getCompileOptions(model))
+                            .then(resolve)
+                            .catch(reject);
                     })
                     .catch(reject);
             }
@@ -125,7 +126,12 @@ export class Engine implements types.IEngine {
         return model.cache!.key;
         // model.template.isFile ? model.template.template.trim().toLowerCase() : model.cache!.key
     }
-    private getTemplateName = (model: types.CompileModel): string => model.template.isFile ? model.template.template : '';
-    private getTemplate = (model: types.CompileModel): string => model.template.isFile ? this.templateLoader.load(model.template.template, model.loaderModel ?? {}) : model.template.template;
-    private getTemplateAsync = (model: types.CompileModel): Promise<string> => model.template.isFile ? this.templateLoader.loadAsync(model.template.template, model.loaderModel ?? {}) : Promise.resolve(model.template.template);
+    private getCompileOptions = (model: types.CompileModel): types.CompileOptions => ({
+        renderService: model.renderService,
+        loaderMetaData: model.templateLoadingMetaData,
+        templateFilename: model.template.isFile ? model.template.template : undefined
+    });
+    //private getTemplateName = (model: types.CompileModel): string | undefined => model.template.isFile ? model.template.template : undefined;
+    private getTemplate = (model: types.CompileModel): string => model.template.isFile ? this.templateLoader.load(model.template.template, model.templateLoadingMetaData ?? {}) : model.template.template;
+    private getTemplateAsync = (model: types.CompileModel): Promise<string> => model.template.isFile ? this.templateLoader.loadAsync(model.template.template, model.templateLoadingMetaData ?? {}) : Promise.resolve(model.template.template);
 }

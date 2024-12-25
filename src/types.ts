@@ -1,6 +1,6 @@
 export type PlainObject = { [key: string]: any }
 
-export type EngineOptions =
+export type EngineSettings =
     {
         delimiter?: string,
         openDelimiter?: string,
@@ -13,7 +13,7 @@ export type EngineOptions =
         useStrict?: boolean,
     }
 
-export type CompilOptions = {
+export type CompilerSettings = {
     delimiter: string,
     openDelimiter: string,
     closeDelimiter: string,
@@ -32,7 +32,10 @@ export type CompilOptions = {
 
 export type CompileModel = {
     template: { template: string, isFile?: boolean },
-    loaderModel?: PlainObject,
+    /** The meta data is available inside the load-template functions.*/
+    templateLoadingMetaData?: PlainObject,
+    /** The renderService is available inside the render function. This object can contain functions, data, etc.*/
+    renderService?: PlainObject,
     cache?: {
         /**A mandatory unique string key. It is better to leave a Guid as key.*/
         key: string,
@@ -62,8 +65,8 @@ export interface IEngine {
 }
 
 export interface ITemplateLoader {
-    load(filename: string, model: PlainObject): string;
-    loadAsync(filename: string, model: PlainObject): Promise<string>;
+    load(filename: string, metaData: PlainObject): string;
+    loadAsync(filename: string, metaData: PlainObject): Promise<string>;
 }
 
 export interface ILogger {
@@ -72,9 +75,25 @@ export interface ILogger {
     debug(message: string): void;
 }
 
+// export interface ICompiledViewCache{
+//     readAsync(key: string): Promise<string | undefined>;
+//     read(key: string): string | undefined;
+//     writeAsync(key: string, compilerSourceCode: string): Promise<string | undefined>;
+//     write(key: string, compilerSourceCode: string): string | undefined;
+// }
+
+export type CompileOptions = {
+    /** The service is available inside the render function. This object can contain functions, data, etc.*/
+    renderService?: PlainObject,
+    /** The meta data is available inside the load-template functions.*/
+    loaderMetaData?: PlainObject,
+
+    templateFilename?: string
+}
+
 export interface ICompiler {
-    compile(loaderModel: PlainObject, template: string, templateFilename?: string): SyncRenderDelegate;
-    compileAsync(loaderModel: PlainObject, template: string, templateFilename?: string): Promise<AsyncRenderDelegate>;
+    compile(template: string, options?: CompileOptions): SyncRenderDelegate;
+    compileAsync(template: string, options?: CompileOptions): Promise<AsyncRenderDelegate>;
 }
 
 //#region ----- Errors ----------------------

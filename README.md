@@ -1,8 +1,8 @@
 <p>A simple and fast template engine for NodeJS.</p>
 <h4>Install</h4>
-<p>yarn add aryiosoft-template-engine</p>
+<p>yarn add aryosoft-fast-engine</p>
 <p>or:</p>
-<p>npm i aryiosoft-template-engine</p>
+<p>npm i aryosoft-fast-engine</p>
 <hr/>
 <h4>Initializing the engine</h4>
 
@@ -15,11 +15,11 @@
   const templatePath: string = './src/templates';
 
   const templateLoader: aryo.types.ITemplateLoader = Object.freeze({
-    load: (filename: string): string => {
+    load: (filename: string, metaData: any): string => {
         filename = path.resolve(templatePath, filename);
         return readFileSync(filename, 'utf-8');
     },
-    loadAsync: (filename: string): Promise<string> => {
+    loadAsync: (filename: string, metaData: any): Promise<string> => {
         return new Promise<string>((resolve, reject) => {
             filename = path.resolve(templatePath, filename);
             readFile(filename, 'utf-8', (err, content) => {
@@ -50,6 +50,8 @@ app.get('/', (req: Request, resp: Response) => {
     try {
         let html = templateEngine.render({
             template: { template: 'index.html', isFile: true },
+            templateLoadingMetaData: {},//Will be available inside the load-template functions.
+            renderService: {},//Can contain functions, data, etc.
             cache: { key: 'c378b36b-ee9d-478d-bada-7ca70849b4c2', duration: 30/*30 Seconds*/ }
         }, {
             pageTitle: 'SYNC Rendring',
@@ -73,6 +75,8 @@ app.get('/async', (req: Request, resp: Response) => {
     try {
         templateEngine.renderAsync({
             template: { template: 'index.html', isFile: true },
+            templateLoadingMetaData: {}, //Will be available inside the load-template functions.
+            renderService: {}, //Can contain functions, data, etc.
             cache: { key: 'c378b36b-ee9d-478d-bada-7ca70849b4c2', duration: 30 /*30 Seconds*/ }
         }, {
             pageTitle: 'ASYNC Rendring',
@@ -105,7 +109,8 @@ app.listen(port, () => {
 ```
 <hr/>
 <h4>Accessing to the data model inside templates</h4>
-<p>Use <code>$model</code> in order to access the passed data into the template.<p/>
+<p>Use <code>$service</code> in order to access the renderService instnace(e.g. let result = $service.func1(); ).</p>
+<p>Use <code>$model</code> in order to access the passed data into the template.</p>
 <code>
 &lt;!DOCTYPE html&gt;
 &lt;html&gt;
@@ -194,7 +199,7 @@ app.listen(port, () => {
 <p>
   Inside the layout:</br>
   <ul>
-    <li><b>&lt;render-body/&gt;</b>&nbsp;&nbsp; In order to specify the place which the body of the partial will appear into. This tag is mandatory and layout templates must have only and only one of this tag.</li>
+    <li><b>&lt;render-body/&gt;</b>&nbsp;&nbsp; In order to specify the place where the body of the partial will appear into. This tag is mandatory and layout templates must have only and only one of this tag.</li>
     <li><b>&lt;render-section name="section-name"/&gt;</b>&nbsp;&nbsp; In order to define sections. This tag is not mandatory. Layout templates might have several render-section tags.</li>
   </ul>
 </p>

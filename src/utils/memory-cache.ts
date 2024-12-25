@@ -1,5 +1,5 @@
-import { ArgumentNullException, SyncRenderDelegate, AsyncRenderDelegate } from './types';
-import { MiscHelper } from './helpers';
+import { ArgumentNullException, SyncRenderDelegate, AsyncRenderDelegate } from '../types';
+import { MiscHelper } from './misc-helper';
 
 class MemoryCache<T> {
     constructor() {

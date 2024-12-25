@@ -1,5 +1,9 @@
 import * as types from '../types';
 
+export type EscapFunc = (input?: string) => string;
+export type AsyncIncludeFunc = (name: string, model: types.PlainObject) => Promise<string>;
+export type SyncIncludeFunc =  (name: string, model: types.PlainObject) => string;
 export type RethrowFunc = (err: Error, str: string, flnm: string, lineno: number, esc: (input: string) => string) => void;
-export type AsyncRenderDelegate = (data?: types.PlainObject, esacpe?: (input?: string) => string, include?: (name: string, data: types.PlainObject) => Promise<string>, rethrow?: RethrowFunc) => Promise<string>;
-export type SyncRenderDelegate = (data?: types.PlainObject, esacpe?: (input?: string) => string, include?: (name: string, data: types.PlainObject) => string, rethrow?: RethrowFunc) => string;
+
+export type AsyncCompilerFunc = (service: types.PlainObject, model?: types.PlainObject, esacpe?: EscapFunc, include?: AsyncIncludeFunc, rethrow?: RethrowFunc) => Promise<string>;
+export type SyncCompilerFunc =  (service: types.PlainObject, model?: types.PlainObject,  esacpe?: EscapFunc,  include?: SyncIncludeFunc, rethrow?: RethrowFunc) => string;

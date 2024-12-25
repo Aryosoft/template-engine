@@ -2,13 +2,13 @@ import { ITemplateLoader, TemplateNotFoundException, PlainObject } from './types
 import fs from 'fs';
 
 export const FileTemplateLoader: ITemplateLoader = Object.freeze({
-    load: (filename: string, model: PlainObject): string => {
+    load: (filename: string, metaData: PlainObject): string => {
         if (!fs.existsSync(filename))
             throw new TemplateNotFoundException(filename);
         
         return fs.readFileSync(filename, 'utf-8');
     },
-    loadAsync: (filename: string, model: PlainObject): Promise<string> => new Promise<string>((resolve, reject) => {
+    loadAsync: (filename: string, metaData: PlainObject): Promise<string> => new Promise<string>((resolve, reject) => {
         if (!fs.existsSync(filename))
             return reject(new TemplateNotFoundException(filename));
 

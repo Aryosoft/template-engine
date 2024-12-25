@@ -1,5 +1,5 @@
-import { MiscHelper, TypeHelper } from '../helpers';
-import { LayoutResolver } from '../layout-resolver';
+import { MiscHelper, TypeHelper } from '../utils';
+import { LayoutResolver } from '../utils/layout-resolver';
 import * as types from '../types';
 
 enum Modes {
@@ -13,7 +13,7 @@ enum Modes {
 export abstract class CompilerBase {
     constructor(
         protected template: string,
-        protected readonly options: types.CompilOptions,
+        protected readonly options: types.CompilerSettings,
         protected readonly loader: types.ITemplateLoader,
         protected readonly logger: types.ILogger
     ) {
@@ -129,11 +129,16 @@ export abstract class CompilerBase {
         if (matches && matches.length) {
             matches.forEach((line, index) => {
                 var closing;
-
+                /*
                 if (/^\s*include\s*\(/.test(line)) //Fixing missing the "this." pointer.
                     line = ' this.' + line.trim();
 
                 if (async && /^\s*this\.include\s*\(/.test(line)) {
+                    line = ' await ' + line.trim();
+                }
+                */
+
+                if (async && /^\s*include\s*\(/.test(line)) {
                     line = ' await ' + line.trim();
                 }
 
